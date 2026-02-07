@@ -1,105 +1,145 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Ensaio de Resistência</title>
-<style>
-body{font-family:Arial;background:#f4f4f4;margin:0}
-header{background:#111;color:#fff;padding:14px;text-align:center;font-weight:bold}
-section{background:#fff;margin:10px;padding:14px;border-radius:10px}
-label{display:block;margin-top:8px}
-input{width:100%;padding:8px;margin-top:4px}
-button{border:none;border-radius:8px}
-.calc{background:#2e7d32;color:#fff;padding:14px;width:100%;font-size:16px;margin-top:10px}
-.result-box{background:#eaeaea;margin:10px;padding:12px;border-radius:8px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ensaio de Resistência - TTR</title>
+
+    <style>
+        *{box-sizing:border-box;font-family:Arial, sans-serif}
+        body{margin:0;background:#f4f4f4; padding-bottom: 20px;}
+        header{background:#111;color:#fff;padding:14px;text-align:center;font-weight:bold}
+        section{background:#fff;margin:10px;padding:14px;border-radius:10px;box-shadow: 0 2px 5px rgba(0,0,0,0.1)}
+        h2{margin:0 0 10px;display:flex;justify-content:space-between;align-items:center; font-size: 18px;}
+        .small-select{font-size:13px;padding:4px}
+        label{font-size:14px;margin-top:8px;display:block; color: #555;}
+        input{width:100%;padding:10px;font-size:16px;margin-top:4px; border: 1px solid #ccc; border-radius: 4px;}
+        .result-box{background:#e3f2fd;margin:10px;padding:12px;border-radius:8px; border-left: 5px solid #2196f3;}
+        .unit-btn{margin-top:10px;font-size:12px;padding:6px 12px; cursor: pointer; background: #eee; border: 1px solid #ccc;}
+        button.calc{background:#2e7d32;color:#fff;padding:16px;width:calc(100% - 20px);font-size:18px; font-weight: bold; margin: 10px; cursor: pointer;}
+        button.calc:hover{background:#1b5e20}
+        footer{text-align:center;font-size:12px;padding:10px;color:#777}
+        .res-item { margin: 5px 0; font-family: monospace; font-size: 15px; }
+    </style>
 </head>
+
 <body>
 
 <header>Ensaio de Resistência de Enrolamento</header>
 
 <section>
-<label>Temperatura medida (°C)</label>
-<input id="tm" type="number" step="0.1" placeholder="Ex: 22.6">
+    <label><strong>Temperatura medida (°C)</strong></label>
+    <input id="tm" type="number" step="0.1" value="20" placeholder="Ex: 22.6">
 </section>
 
 <section>
-<h2>Entrada</h2>
-<select id="unitIn">
-<option value="1e-12">pΩ</option>
-<option value="1e-9">nΩ</option>
-<option value="1e-6">µΩ</option>
-<option value="1e-3">mΩ</option>
-<option value="1">Ω</option>
-<option value="1e3">kΩ</option>
-</select>
-<label>H1 - H3</label><input id="e1">
-<label>H1 - H2</label><input id="e2">
-<label>H2 - H3</label><input id="e3">
+    <h2>
+        Alta Tensão (Entrada)
+        <select id="unitIn" class="small-select">
+            <option value="1e-6">µΩ</option>
+            <option value="1e-3">mΩ</option>
+            <option value="1" selected>Ω</option>
+            <option value="1e3">kΩ</option>
+        </select>
+    </h2>
+
+    <label>H1 - H3</label><input id="e1" type="number" step="any">
+    <label>H1 - H2</label><input id="e2" type="number" step="any">
+    <label>H2 - H3</label><input id="e3" type="number" step="any">
 </section>
 
 <section>
-<h2>Saída</h2>
-<select id="unitOut">
-<option value="1e-12">pΩ</option>
-<option value="1e-9">nΩ</option>
-<option value="1e-6">µΩ</option>
-<option value="1e-3">mΩ</option>
-<option value="1">Ω</option>
-<option value="1e3">kΩ</option>
-</select>
-<label>X0 - X1</label><input id="s1">
-<label>X0 - X2</label><input id="s2">
-<label>X0 - X3</label><input id="s3">
+    <h2>
+        Baixa Tensão (Saída)
+        <select id="unitOut" class="small-select">
+            <option value="1e-6">µΩ</option>
+            <option value="1e-3" selected>mΩ</option>
+            <option value="1">Ω</option>
+        </select>
+    </h2>
+
+    <label>X0 - X1</label><input id="s1" type="number" step="any">
+    <label>X0 - X2</label><input id="s2" type="number" step="any">
+    <label>X0 - X3</label><input id="s3" type="number" step="any">
 </section>
 
-<button class="calc" onclick="calcular()">Calcular</button>
-
-<section class="result-box">
-<h3>Resultados – Entrada</h3>
-<div id="resEntrada"></div>
-</section>
+<button class="calc" onclick="calcular()">CALCULAR RESULTADOS</button>
 
 <section class="result-box">
-<h3>Resultados – Saída</h3>
-<div id="resSaida"></div>
+    <h3>Resultados Corrigidos – Entrada</h3>
+    <div id="resEntrada">Aguardando cálculos...</div>
 </section>
+
+<section class="result-box">
+    <h3>Resultados Corrigidos – Saída</h3>
+    <div id="resSaida">Aguardando cálculos...</div>
+</section>
+
+<footer>Produzido pela Equipe Alpha</footer>
 
 <script>
-function calcValor(v, unidade){
-  if(v === "" || isNaN(v)) return null;
-  const tm = parseFloat(document.getElementById("tm").value);
-  if(isNaN(tm)) return null;
-  const Ftemp = (235+75)/(235+tm);
-  const leitura = parseFloat(v) * unidade;
-  return leitura * 1.5 * Ftemp;
+function calcular(){
+    const tm = parseFloat(document.getElementById("tm").value);
+    
+    // Validação da temperatura para evitar divisão por zero ou erro matemático
+    if(isNaN(tm)) {
+        alert("Por favor, insira a temperatura medida.");
+        return;
+    }
+
+    // Constantes e Fórmula de Correção
+    const T = 235;
+    const Tr = 75;
+    const Constante = 1.5;
+    const Ftemp = (T + Tr) / (T + tm);
+
+    // Unidades selecionadas
+    const ui = parseFloat(document.getElementById("unitIn").value);
+    const us = parseFloat(document.getElementById("unitOut").value);
+
+    // Função interna para processar cada campo
+    const processarCampo = (id, unidade) => {
+        const campo = document.getElementById(id);
+        const valor = parseFloat(campo.value);
+        if(isNaN(valor)) return null;
+        
+        // Cálculo: Leitura * Unidade * Constante * Fator de Temperatura
+        return valor * unidade * Constante * Ftemp;
+    };
+
+    // Processamento das Entradas (Alta)
+    const entradas = [
+        { label: "H1-H3", val: processarCampo("e1", ui) },
+        { label: "H1-H2", val: processarCampo("e2", ui) },
+        { label: "H2-H3", val: processarCampo("e3", ui) }
+    ];
+
+    // Processamento das Saídas (Baixa)
+    const Saidas = [
+        { label: "X0-X1", val: processarCampo("s1", us) },
+        { label: "X0-X2", val: processarCampo("s2", us) },
+        { label: "X0-X3", val: processarCampo("s3", us) }
+    ];
+
+    // Renderizar Resultados
+    renderizar("resEntrada", entradas);
+    renderizar("resSaida", Saidas);
 }
 
-function calcular(){
-  const ui = parseFloat(document.getElementById("unitIn").value);
-  const us = parseFloat(document.getElementById("unitOut").value);
+function renderizar(containerId, lista) {
+    const container = document.getElementById(containerId);
+    const validos = lista.filter(item => item.val !== null);
+    
+    if(validos.length === 0) {
+        container.innerHTML = "Nenhum valor inserido.";
+        return;
+    }
 
-  const entrada = [
-    ["H1-H3", calcValor(document.getElementById("e1").value, ui)],
-    ["H1-H2", calcValor(document.getElementById("e2").value, ui)],
-    ["H2-H3", calcValor(document.getElementById("e3").value, ui)]
-  ];
-
-  const saida = [
-    ["X0-X1", calcValor(document.getElementById("s1").value, us)],
-    ["X0-X2", calcValor(document.getElementById("s2").value, us)],
-    ["X0-X3", calcValor(document.getElementById("s3").value, us)]
-  ];
-
-  document.getElementById("resEntrada").innerHTML = entrada
-    .filter(v=>v[1]!=null)
-    .map(v=>`${v[0]}: ${v[1].toFixed(6)} Ω`)
-    .join("<br>");
-
-  document.getElementById("resSaida").innerHTML = saida
-    .filter(v=>v[1]!=null)
-    .map(v=>`${v[0]}: ${v[1].toFixed(6)} Ω`)
-    .join("<br>");
+    container.innerHTML = validos.map(item => {
+        // Exibe em notação científica se for muito pequeno ou decimal fixo se for normal
+        const formatado = item.val < 0.1 ? item.val.toExponential(4) : item.val.toFixed(4);
+        return `<div class="res-item"><strong>${item.label}:</strong> ${formatado} Ω</div>`;
+    }).join("");
 }
 </script>
 
