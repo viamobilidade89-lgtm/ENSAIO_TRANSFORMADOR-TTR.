@@ -1,50 +1,164 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Ensaio TTR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: Arial; background:#f2f2f2; padding:15px; }
-    .box { background:#fff; padding:15px; border-radius:8px; max-width:500px; margin:auto; }
-    label { font-weight:bold; margin-top:10px; display:block; }
-    input, select, button { width:100%; padding:8px; margin-top:5px; font-size:16px; }
-    button { background:#1976d2; color:#fff; border:none; border-radius:5px; margin-top:10px; }
-    .resultado { margin-top:15px; background:#e3f2fd; padding:10px; border-radius:5px; }
-  </style>
+<meta charset="UTF-8">
+<title>Ensaio de Resistência de Enrolamento</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{font-family:Arial;background:#f2f2f2;padding:10px}
+.container{background:#fff;padding:15px;border-radius:8px;max-width:900px;margin:auto}
+h2{text-align:center}
+.bloco{border:1px solid #ddd;padding:10px;border-radius:6px;margin-top:12px}
+label{font-weight:bold}
+input,select,button{width:100%;padding:8px;margin-top:5px}
+button{border:none;border-radius:5px;color:#fff;margin-top:8px}
+.calcular{background:#1976d2}
+.pdf{background:#2e7d32}
+.novo{background:#757575}
+.exemplo{background:#0288d1}
+.copiar{background:#6a1b9a}
+.status{padding:6px;border-radius:5px;text-align:center;font-weight:bold}
+.aguardando{background:#fff3cd}
+.ok{background:#d4edda}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #aaa;padding:6px;text-align:center}
+.resultado{background:#e3f2fd}
+.formula{display:none;background:#fafafa;padding:8px;border-radius:5px;font-size:14px}
+</style>
 </head>
+
 <body>
+<div class="container">
 
-<h2 style="text-align:center">Ensaio TTR</h2>
+<h2>Ensaio de Resistência de Enrolamento</h2>
 
-<div class="box">
-  <label>Resistência medida (Ω)</label>
-  <input id="rm" type="number" step="0.01">
+<div id="status" class="status aguardando">Aguardando dados</div>
 
-  <label>Constante</label>
-  <select id="k">
-    <option value="1.2">235 / 75</option>
-    <option value="1.275">275</option>
-  </select>
+<div class="bloco">
+<label>Temperatura medida Tm (°C)</label>
+<input id="tm" type="number">
+</div>
 
-  <button onclick="calcular()">Calcular</button>
-  <button onclick="limpar()">Limpar</button>
+<div class="bloco">
+<h3>Alta Tensão (mΩ)</h3>
+<input id="h13" placeholder="H1-H3">
+<input id="h12" placeholder="H1-H2">
+<input id="h23" placeholder="H2-H3">
+</div>
 
-  <div class="resultado" id="resultado"></div>
+<div class="bloco">
+<h3>Baixa Tensão (mΩ)</h3>
+<input id="x01" placeholder="X0-X1">
+<input id="x02" placeholder="X0-X2">
+<input id="x03" placeholder="X0-X3">
+</div>
+
+<div class="bloco">
+<label>Unidade de saída</label>
+<select id="unidade">
+<option value="m">mΩ</option>
+<option value="u">µΩ</option>
+<option value="o">Ω</option>
+<option value="k">kΩ</option>
+<option value="M">MΩ</option>
+</select>
+</div>
+
+<button class="calcular" onclick="calcular()">Calcular</button>
+<button class="exemplo" onclick="exemplo()">Preencher exemplo</button>
+<button onclick="mostrarFormula()">Mostrar / Ocultar fórmula</button>
+
+<div id="formula" class="formula">
+F = (235 + 75) / (235 + Tm)<br>
+R = Rmed × 1,5 × F
+</div>
+
+<div class="bloco resultado" id="res"></div>
+
+<button class="copiar" onclick="copiar()">Copiar resultados</button>
+<button class="pdf" onclick="pdf()">Gerar PDF</button>
+<button class="novo" onclick="novo()">Novo ensaio</button>
+
 </div>
 
 <script>
-function calcular() {
-  let rm = parseFloat(document.getElementById("rm").value);
-  let k = parseFloat(document.getElementById("k").value);
-  if (isNaN(rm)) { alert("Informe a resistência"); return; }
-  let rt = rm * k;
-  document.getElementById("resultado").innerHTML =
-    "Rt = <b>" + rt.toFixed(2) + " Ω</b>";
+const T=235,Tr=75,K=1.5;
+let resultadosTexto="";
+
+function calc(v,tm){
+let f=(T+Tr)/(T+tm);
+return (v/1000)*K*f;
 }
-function limpar() {
-  document.getElementById("rm").value = "";
-  document.getElementById("resultado").innerHTML = "";
+
+function conv(v,u){
+if(u=="m")return (v*1000).toFixed(2)+" mΩ";
+if(u=="u")return (v*1000000).toFixed(2)+" µΩ";
+if(u=="o")return v.toFixed(4)+" Ω";
+if(u=="k")return (v/1000).toFixed(4)+" kΩ";
+if(u=="M")return (v/1000000).toFixed(6)+" MΩ";
+}
+
+function calcular(){
+let tm=parseFloat(tm.value);
+if(isNaN(tm))return alert("Informe Tm");
+let u=unidade.value;
+
+let at=[["H1-H3",h13.value],["H1-H2",h12.value],["H2-H3",h23.value]];
+let bt=[["X0-X1",x01.value],["X0-X2",x02.value],["X0-X3",x03.value]];
+
+let html="<h3>Resultados</h3>";
+resultadosTexto="";
+
+function tabela(nome,dados){
+html+=`<h4>${nome}</h4><table><tr><th>Medição</th><th>Valor</th></tr>`;
+dados.forEach(d=>{
+let r=conv(calc(parseFloat(d[1]),tm),u);
+html+=`<tr><td>${d[0]}</td><td>${r}</td></tr>`;
+resultadosTexto+=`${nome} ${d[0]}: ${r}\n`;
+});
+html+="</table>";
+}
+
+tabela("Alta Tensão",at);
+tabela("Baixa Tensão",bt);
+
+res.innerHTML=html;
+status.className="status ok";
+status.innerText="Cálculo realizado";
+}
+
+function mostrarFormula(){
+formula.style.display=formula.style.display=="none"?"block":"none";
+}
+
+function copiar(){
+navigator.clipboard.writeText(resultadosTexto);
+alert("Resultados copiados");
+}
+
+function exemplo(){
+tm.value=25;
+h13.value=12;h12.value=11.8;h23.value=12.1;
+x01.value=0.8;x02.value=0.82;x03.value=0.79;
+}
+
+function novo(){
+document.querySelectorAll("input").forEach(i=>i.value="");
+res.innerHTML="";
+status.className="status aguardando";
+status.innerText="Aguardando dados";
+}
+
+function pdf(){
+if(!resultadosTexto)return alert("Calcule antes");
+const {jsPDF}=window.jspdf;
+let p=new jsPDF();
+p.text("RELATÓRIO DE ENSAIO DE RESISTÊNCIA",15,20);
+p.text("Data: "+new Date().toLocaleString(),15,30);
+p.text(resultadosTexto,15,45);
+p.save("ensaio_transformador.pdf");
 }
 </script>
 
