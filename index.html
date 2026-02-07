@@ -3,58 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha TTR - Professional</title>
+    <title>Alpha TTR - Custom Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <style>
+        /* Variáveis de Cores (Padrão: Dark Blue) */
         :root { 
-            --bg-body: #121212; --card-bg: #1e1e1e; --primary: #3d5afe; 
-            --text: #e0e0e0; --success: #00c853; --border: #333;
+            --bg: #121212; --card: #1e1e1e; --primary: #3d5afe; 
+            --text: #ffffff; --input-bg: #2a2a2a; --border: #333;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text); margin: 0; padding: 15px; }
+
+        /* Temas */
+        .theme-green { --primary: #00c853; --bg: #0b1a0f; }
+        .theme-orange { --primary: #ff6d00; --bg: #1a140b; }
+        .theme-classic { --primary: #0d47a1; --bg: #f4f7f9; --text: #333; --card: #fff; --input-bg: #fff; --border: #ddd; }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; transition: 0.3s; }
         .container { max-width: 900px; margin: auto; }
+        .card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid var(--border); position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         
-        /* Card e Layout */
-        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; position: relative; }
-        header { text-align: center; margin-bottom: 25px; }
+        /* Menu Lateral (Drawer) */
+        .drawer { 
+            position: fixed; top: 0; right: -300px; width: 300px; height: 100%; 
+            background: var(--card); border-left: 2px solid var(--primary); 
+            z-index: 1000; transition: 0.4s; padding: 20px; box-sizing: border-box; overflow-y: auto;
+        }
+        .drawer.active { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+
+        .menu-dots { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 28px; color: var(--primary); }
+        
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
 
-        /* Inputs e Seletor */
-        label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; }
         input, select { 
-            width: 100%; padding: 12px; margin-bottom: 12px; background: #2a2a2a; 
-            border: 1px solid var(--border); border-radius: 6px; color: white; box-sizing: border-box; 
+            width: 100%; padding: 12px; margin: 8px 0; background: var(--input-bg); 
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text); 
         }
         
-        /* Botões */
-        .actions { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 10px; }
-        button { padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-calc { background: var(--primary); }
-        .btn-clear { background: #444; }
+        button { padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        .btn-calc { background: var(--primary); width: 100%; font-size: 16px; margin-top: 10px; }
+        .btn-clear { background: #555; }
         .btn-pdf { background: #673ab7; }
-        .btn-unit-toggle { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; font-size: 11px; margin-bottom: 10px; }
         
-        /* Menu de Histórico (Três Pontos) */
-        .menu-hist { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 24px; color: var(--primary); }
-        #histContent { display: none; background: #252525; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--primary); }
+        .res-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .res-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border-top: 3px solid var(--primary); }
+        .res-line { padding: 8px 0; border-bottom: 1px solid var(--border); font-family: monospace; color: var(--primary); font-weight: bold; }
 
-        /* Resultados */
-        .res-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
-        .res-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary); }
-        .res-line { padding: 8px 0; border-bottom: 1px solid #333; font-family: 'Consolas', monospace; color: var(--success); }
-        h3 { margin-top: 0; font-size: 16px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        /* Estilo Histórico e Cores */
+        .hist-item { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 12px; border-left: 3px solid var(--primary); }
+        .color-opt { display: inline-block; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; margin: 5px; border: 2px solid white; }
     </style>
 </head>
-<body>
+<body id="body">
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<div class="drawer" id="drawer">
+    <h3>Configurações</h3>
+    <p>Temas de Cores:</p>
+    <div class="color-opt" style="background:#3d5afe" onclick="setTheme('default')"></div>
+    <div class="color-opt" style="background:#00c853" onclick="setTheme('green')"></div>
+    <div class="color-opt" style="background:#ff6d00" onclick="setTheme('orange')"></div>
+    <div class="color-opt" style="background:#0d47a1" onclick="setTheme('classic')"></div>
+    
+    <hr style="border:0; border-top:1px solid var(--border); margin: 20px 0;">
+    
+    <h3>Histórico</h3>
+    <div id="listaHist">Nenhum ensaio salvo.</div>
+    <button onclick="limparHistorico()" style="background:red; width:100%; margin-top:10px; padding:5px">Limpar Histórico</button>
+</div>
 
 <div class="container">
     <div class="card">
-        <div class="menu-hist" onclick="toggleHist()">&#8942;</div>
+        <div class="menu-dots" onclick="toggleMenu()">&#8942;</div>
         <header>
             <h1 style="margin:0; color:var(--primary)">EQUIPE ALPHA</h1>
-            <p style="font-size:12px; color:#777">Calculadora de Resistência de Enrolamento</p>
+            <p style="font-size:13px; opacity:0.7">Controle de Resistência de Enrolamento</p>
         </header>
 
         <label>Temperatura Medida (°C)</label>
@@ -62,15 +88,12 @@
 
         <div class="grid">
             <section>
-                <h3>Entrada</h3>
+                <h3 style="color:var(--primary)">Entrada</h3>
                 <select id="unitIn">
                     <option value="1e-12">pico-ohms (pΩ)</option>
-                    <option value="1e-9">nano-ohms (nΩ)</option>
                     <option value="1e-6">micro-ohms (µΩ)</option>
                     <option value="1e-3">milli-ohms (mΩ)</option>
                     <option value="1" selected>Ohms (Ω)</option>
-                    <option value="1e3">kilo-ohms (kΩ)</option>
-                    <option value="1e6">Mega-ohms (MΩ)</option>
                 </select>
                 <input id="e1" type="text" placeholder="H1-H3">
                 <input id="e2" type="text" placeholder="H1-H2">
@@ -78,15 +101,11 @@
             </section>
 
             <section>
-                <h3>Saída</h3>
+                <h3 style="color:var(--primary)">Saída</h3>
                 <select id="unitOut">
-                    <option value="1e-12">pico-ohms (pΩ)</option>
-                    <option value="1e-9">nano-ohms (nΩ)</option>
                     <option value="1e-6">micro-ohms (µΩ)</option>
                     <option value="1e-3" selected>milli-ohms (mΩ)</option>
                     <option value="1">Ohms (Ω)</option>
-                    <option value="1e3">kilo-ohms (kΩ)</option>
-                    <option value="1e6">Mega-ohms (MΩ)</option>
                 </select>
                 <input id="s1" type="text" placeholder="X0-X1">
                 <input id="s2" type="text" placeholder="X0-X2">
@@ -94,141 +113,131 @@
             </section>
         </div>
 
-        <div class="actions">
-            <button class="btn-calc" onclick="calcular()">CALCULAR</button>
-            <button class="btn-clear" onclick="limpar()">LIMPAR</button>
-            <button class="btn-pdf" onclick="gerarPDF()">GERAR PDF</button>
-        </div>
-
-        <div id="histContent">
-            <h3>Histórico de Ensaios</h3>
-            <div id="listaHist" style="font-size:11px; line-height:1.6">Aguardando dados...</div>
-            <button onclick="limparHistorico()" style="background:red; padding:5px; margin-top:10px; font-size:10px">Zerar Histórico</button>
+        <button class="btn-calc" onclick="calcular()">CALCULAR RESULTADOS</button>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px">
+            <button class="btn-clear" onclick="limpar()">LIMPAR CAMPOS</button>
+            <button class="btn-pdf" onclick="gerarPDF()">EXPORTAR PDF</button>
         </div>
     </div>
 
     <div class="res-container" id="areaResultados" style="display:none;">
         <div class="res-box">
-            <h3>Entrada <button class="btn-unit-toggle" onclick="mudarDisplay('In')">Unidade</button></h3>
+            <h4>Entrada Corrigida <button onclick="trocarEscala('In')" style="background:none; color:var(--primary); border:none; cursor:pointer; font-size:10px">[Mudar Unidade]</button></h4>
             <div id="resEntrada"></div>
         </div>
         <div class="res-box">
-            <h3>Saída <button class="btn-unit-toggle" onclick="mudarDisplay('Out')">Unidade</button></h3>
+            <h4>Saída Corrigida <button onclick="trocarEscala('Out')" style="background:none; color:var(--primary); border:none; cursor:pointer; font-size:10px">[Mudar Unidade]</button></h4>
             <div id="resSaida"></div>
         </div>
     </div>
 </div>
 
 <script>
-    let dadosAtuais = { entrada: [], saida: [], tm: 0, data: "" };
-    const escalas = [
-        { l: "pΩ", v: 1e-12 }, { l: "nΩ", v: 1e-9 }, { l: "µΩ", v: 1e-6 }, 
-        { l: "mΩ", v: 1e-3 }, { l: "Ω", v: 1 }, { l: "kΩ", v: 1e3 }, { l: "MΩ", v: 1e6 }
-    ];
-    let idxIn = 4; // Ω
-    let idxOut = 3; // mΩ
+    let dadosAtuais = null;
+    let escalas = [{l:"µΩ", v:1e-6}, {l:"mΩ", v:1e-3}, {l:"Ω", v:1}, {l:"kΩ", v:1e3}];
+    let idxIn = 2; let idxOut = 1;
 
-    function toggleHist() {
-        const h = document.getElementById("histContent");
-        h.style.display = h.style.display === "block" ? "none" : "block";
+    function toggleMenu() {
+        document.getElementById('drawer').classList.toggle('active');
+        document.getElementById('overlay').style.display = 
+            document.getElementById('overlay').style.display === 'block' ? 'none' : 'block';
+    }
+
+    function setTheme(theme) {
+        const body = document.getElementById('body');
+        body.className = '';
+        if(theme !== 'default') body.classList.add('theme-' + theme);
+        localStorage.setItem('alpha_theme', theme);
     }
 
     function calcular() {
-        const tm = parseFloat(document.getElementById("tm").value.replace(',', '.'));
-        if(isNaN(tm)) return alert("Preencha a temperatura.");
+        const tm = parseFloat(document.getElementById('tm').value.replace(',', '.'));
+        const fTemp = (235 + 75) / (235 + tm);
+        const k = 1.5;
 
-        const Ftemp = (235 + 75) / (235 + tm);
-        const K = 1.5;
-
-        const uIn = parseFloat(document.getElementById("unitIn").value);
-        const uOut = parseFloat(document.getElementById("unitOut").value);
-
-        // Processamento Individual para evitar valores idênticos
-        const obterValores = (prefixo, unidades) => {
-            let res = [];
-            for(let i=1; i<=3; i++) {
-                let id = (prefixo === 'E') ? `e${i}` : `s${i}`;
-                let lab = (prefixo === 'E') ? `H1-H${i==1?3:i==2?2:3}` : `X0-X${i}`;
-                // Ajuste de label manual para H1-H3, H1-H2, H2-H3 conforme seu padrão
-                if(prefixo === 'E') {
-                   const labelsEntrada = ["H1-H3", "H1-H2", "H2-H3"];
-                   lab = labelsEntrada[i-1];
-                }
-                
-                let raw = document.getElementById(id).value.replace(',', '.');
-                let val = raw === "" ? null : (parseFloat(raw) * unidades) * K * Ftemp;
-                res.push({ label: lab, val: val });
-            }
-            return res;
+        const lerVal = (id, unit) => {
+            let v = document.getElementById(id).value.replace(',', '.');
+            return v === "" ? null : (parseFloat(v) * unit) * k * fTemp;
         };
+
+        const uIn = parseFloat(document.getElementById('unitIn').value);
+        const uOut = parseFloat(document.getElementById('unitOut').value);
 
         dadosAtuais = {
             tm: tm,
-            entrada: obterValores('E', uIn),
-            saida: obterValores('S', uOut),
-            data: new Date().toLocaleString()
+            data: new Date().toLocaleString(),
+            entrada: [
+                {lab: "H1-H3", val: lerVal('e1', uIn)},
+                {lab: "H1-H2", val: lerVal('e2', uIn)},
+                {lab: "H2-H3", val: lerVal('e3', uIn)}
+            ],
+            saida: [
+                {lab: "X0-X1", val: lerVal('s1', uOut)},
+                {lab: "X0-X2", val: lerVal('s2', uOut)},
+                {lab: "X0-X3", val: lerVal('s3', uOut)}
+            ]
         };
 
-        document.getElementById("areaResultados").style.display = "grid";
-        renderizar();
-        salvarHistorico();
+        render();
+        salvar();
+        document.getElementById('areaResultados').style.display = 'grid';
     }
 
-    function renderizar() {
+    function render() {
         const fmt = (v, esc) => v === null ? "---" : (v / esc.v).toFixed(4) + " " + esc.l;
-        
-        document.getElementById("resEntrada").innerHTML = dadosAtuais.entrada
-            .map(i => `<div class="res-line">${i.label}: ${fmt(i.val, escalas[idxIn])}</div>`).join("");
-
-        document.getElementById("resSaida").innerHTML = dadosAtuais.saida
-            .map(i => `<div class="res-line">${i.label}: ${fmt(i.val, escalas[idxOut])}</div>`).join("");
+        document.getElementById('resEntrada').innerHTML = dadosAtuais.entrada.map(i => `<div class="res-line">${i.lab}: ${fmt(i.val, escalas[idxIn])}</div>`).join("");
+        document.getElementById('resSaida').innerHTML = dadosAtuais.saida.map(i => `<div class="res-line">${i.lab}: ${fmt(i.val, escalas[idxOut])}</div>`).join("");
     }
 
-    function mudarDisplay(t) {
+    function trocarEscala(t) {
         if(t === 'In') idxIn = (idxIn + 1) % escalas.length;
         else idxOut = (idxOut + 1) % escalas.length;
-        renderizar();
+        render();
     }
 
-    function limpar() {
-        ["tm","e1","e2","e3","s1","s2","s3"].forEach(id => document.getElementById(id).value = "");
-        document.getElementById("areaResultados").style.display = "none";
-    }
-
-    function salvarHistorico() {
-        let h = JSON.parse(localStorage.getItem("alpha_h") || "[]");
+    function salvar() {
+        let h = JSON.parse(localStorage.getItem('alpha_h') || "[]");
         h.unshift(dadosAtuais);
-        localStorage.setItem("alpha_h", JSON.stringify(h.slice(0,10)));
+        localStorage.setItem('alpha_h', JSON.stringify(h.slice(0,10)));
         carregarHist();
     }
 
     function carregarHist() {
-        let h = JSON.parse(localStorage.getItem("alpha_h") || "[]");
-        document.getElementById("listaHist").innerHTML = h.map((x, i) => 
-            `<div style="border-bottom:1px solid #444; margin-bottom:5px">
-                <b>${x.data}</b> - Temp: ${x.tm}°C <br>
-                ${x.entrada[0].label}: ${(x.entrada[0].val||0).toExponential(2)} Ω...
-            </div>`).join("");
+        let h = JSON.parse(localStorage.getItem('alpha_h') || "[]");
+        document.getElementById('listaHist').innerHTML = h.map(x => `
+            <div class="hist-item">
+                <b>${x.data}</b><br>Temp: ${x.tm}°C | Res: ${(x.entrada[0].val||0).toExponential(2)}Ω
+            </div>
+        `).join("");
     }
 
-    function limparHistorico() { localStorage.removeItem("alpha_h"); carregarHist(); }
+    function limpar() { 
+        ["tm","e1","e2","e3","s1","s2","s3"].forEach(id => document.getElementById(id).value = ""); 
+        document.getElementById('areaResultados').style.display='none';
+    }
+
+    function limparHistorico() { localStorage.removeItem('alpha_h'); carregarHist(); }
 
     function gerarPDF() {
+        if(!dadosAtuais) return alert("Calcule antes de exportar.");
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.setFontSize(16); doc.text("RELATORIO ALPHA TTR", 10, 20);
-        doc.setFontSize(10); doc.text(`Data: ${dadosAtuais.data} | Temp: ${dadosAtuais.tm}C`, 10, 30);
+        doc.text("RELATORIO ALPHA TTR", 10, 15);
+        doc.text(`Data: ${dadosAtuais.data} | Temp: ${dadosAtuais.tm}C`, 10, 25);
         
-        const rows = [];
+        let rows = [];
         dadosAtuais.entrada.concat(dadosAtuais.saida).forEach(i => {
-            if(i.val) rows.push([i.label, i.val.toFixed(6) + " Ω", (i.val*1000).toFixed(4) + " mΩ"]);
+            if(i.val) rows.push([i.lab, i.val.toFixed(6) + " Ω"]);
         });
-
-        doc.autoTable({ startY: 40, head: [['Ponto', 'Resultado (Ω)', 'Resultado (mΩ)']], body: rows });
-        doc.save("ensaio_alpha.pdf");
+        doc.autoTable({startY: 35, head: [['Ponto', 'Resultado Corrigido']], body: rows});
+        doc.save(`TTR_Alpha_${Date.now()}.pdf`);
     }
 
-    window.onload = carregarHist;
+    window.onload = () => { 
+        carregarHist(); 
+        if(localStorage.getItem('alpha_theme')) setTheme(localStorage.getItem('alpha_theme'));
+    };
 </script>
 </body>
 </html>
