@@ -2,219 +2,163 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Ensaio de Resistência de Enrolamento</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<title>Ensaio de Resistência – Transformador</title>
 <style>
-body{font-family:Arial;background:#eef2f6;padding:10px}
-.container{background:#fff;padding:15px;border-radius:10px;max-width:980px;margin:auto}
-h2{text-align:center}
-footer{text-align:center;margin-top:20px;font-size:12px;color:#555}
-.bloco{border:1px solid #ccc;padding:12px;border-radius:8px;margin-top:12px}
-.flex{display:flex;gap:10px}
-.flex input{flex:1}
-label{font-weight:bold}
-input,select,button{width:100%;padding:8px;margin-top:5px}
-button{border:none;border-radius:6px;color:#fff;font-weight:bold;margin-top:8px}
-.calcular{background:#1976d2}
-.pdf{background:#2e7d32}
-.novo{background:#757575}
-.exemplo{background:#0288d1}
-.status{padding:6px;border-radius:5px;text-align:center;font-weight:bold}
-.ok{background:#d4edda}
-.aguardando{background:#fff3cd}
-table{width:100%;border-collapse:collapse;margin-top:8px}
-th,td{border:1px solid #999;padding:6px;text-align:center}
-.resultado{background:#f3f8ff}
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  padding: 20px;
+}
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+}
+h2 {
+  background: #1f4fd8;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.section {
+  margin-bottom: 20px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+label {
+  font-weight: bold;
+}
+input, select, button {
+  padding: 8px;
+  width: 100%;
+}
+button {
+  background: #1f4fd8;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background: #163ca8;
+}
+.result {
+  background: #eef2ff;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+.footer {
+  text-align: center;
+  margin-top: 30px;
+  font-style: italic;
+  color: #555;
+}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<h2>Ensaio de Resistência de Enrolamento</h2>
-
-<div id="status" class="status aguardando">Aguardando dados</div>
-
-<div class="bloco">
-<label>Temperatura medida Tm (°C) — apenas informativo</label>
-<input id="tm" type="number" placeholder="Não influencia no cálculo">
+<h2>Dados Gerais</h2>
+<div class="section grid">
+  <div>
+    <label>Temperatura Medida (°C)</label>
+    <input type="number" id="tm" step="0.1">
+  </div>
 </div>
 
-<!-- ALTA -->
-<div class="bloco">
-<h3>Alta Tensão</h3>
-
-<label>Unidade de entrada</label>
-<select id="uAltaIn">
-<option value="m">mΩ</option>
-<option value="u">µΩ</option>
-<option value="o">Ω</option>
-<option value="k">kΩ</option>
-<option value="M">MΩ</option>
+<h2>Alta Tensão</h2>
+<div class="section">
+<label>Unidade de Entrada</label>
+<select id="unitAltaIn">
+  <option value="1">Ω</option>
+  <option value="0.001">mΩ</option>
+  <option value="1000">kΩ</option>
 </select>
 
-<div class="flex">
-<input id="h13" placeholder="H1 - H3">
-<input id="h12" placeholder="H1 - H2">
-<input id="h23" placeholder="H2 - H3">
-</div>
-
-<label>Unidade de saída</label>
-<select id="uAltaOut">
-<option value="m">mΩ</option>
-<option value="u">µΩ</option>
-<option value="o">Ω</option>
-<option value="k">kΩ</option>
-<option value="M">MΩ</option>
-</select>
-</div>
-
-<!-- BAIXA -->
-<div class="bloco">
-<h3>Baixa Tensão</h3>
-
-<label>Unidade de entrada</label>
-<select id="uBaixaIn">
-<option value="m">mΩ</option>
-<option value="u">µΩ</option>
-<option value="o">Ω</option>
-<option value="k">kΩ</option>
-<option value="M">MΩ</option>
+<label>Unidade de Saída</label>
+<select id="unitAltaOut">
+  <option value="1">Ω</option>
+  <option value="0.001">mΩ</option>
+  <option value="1000">kΩ</option>
 </select>
 
-<div class="flex">
-<input id="x01" placeholder="X0 - X1">
-<input id="x02" placeholder="X0 - X2">
-<input id="x03" placeholder="X0 - X3">
+<div class="grid">
+  <div><label>H1-H3</label><input type="number" id="h13"></div>
+  <div><label>H1-H2</label><input type="number" id="h12"></div>
+  <div><label>H2-H3</label><input type="number" id="h23"></div>
 </div>
 
-<label>Unidade de saída</label>
-<select id="uBaixaOut">
-<option value="m">mΩ</option>
-<option value="u">µΩ</option>
-<option value="o">Ω</option>
-<option value="k">kΩ</option>
-<option value="M">MΩ</option>
+<div class="result" id="resAlta"></div>
+</div>
+
+<h2>Baixa Tensão</h2>
+<div class="section">
+<label>Unidade de Entrada</label>
+<select id="unitBaixaIn">
+  <option value="0.001">mΩ</option>
+  <option value="1">Ω</option>
 </select>
+
+<label>Unidade de Saída</label>
+<select id="unitBaixaOut">
+  <option value="0.001">mΩ</option>
+  <option value="1">Ω</option>
+</select>
+
+<div class="grid">
+  <div><label>X0-X1</label><input type="number" id="x01"></div>
+  <div><label>X0-X2</label><input type="number" id="x02"></div>
+  <div><label>X0-X3</label><input type="number" id="x03"></div>
 </div>
 
-<button class="calcular" onclick="calcular()">Calcular</button>
-<button class="exemplo" onclick="exemplo()">Preencher exemplo</button>
+<div class="result" id="resBaixa"></div>
+</div>
 
-<div class="bloco resultado" id="resultado"></div>
+<button onclick="calcular()">Calcular</button>
+<button onclick="location.reload()">Limpar</button>
 
-<button class="pdf" onclick="pdf()">Gerar PDF</button>
-<button class="novo" onclick="novo()">Novo Ensaio</button>
-
-<footer>
-Produzido pela <strong>Equipe Alpha</strong>
-</footer>
+<div class="footer">
+Produzido pela Equipe Alpha
+</div>
 
 </div>
 
 <script>
-const K = 1.5;
-let dados = [];
+function calcular() {
+  const T = 235;
+  const Tr = 75;
+  const tm = parseFloat(document.getElementById("tm").value);
+  const F = (T + Tr) / (T + tm);
 
-function toOhm(v,u){
-if(u=="m")return v/1000;
-if(u=="u")return v/1e6;
-if(u=="o")return v;
-if(u=="k")return v*1000;
-if(u=="M")return v*1e6;
-}
+  function calc(valor, uIn, uOut) {
+    return (valor * uIn * 1.5 * F) / uOut;
+  }
 
-function fromOhm(v,u){
-if(u=="m")return (v*1000).toFixed(2)+" mΩ";
-if(u=="u")return (v*1e6).toFixed(2)+" µΩ";
-if(u=="o")return v.toFixed(4)+" Ω";
-if(u=="k")return (v/1000).toFixed(4)+" kΩ";
-if(u=="M")return (v/1e6).toFixed(6)+" MΩ";
-}
+  const uiA = parseFloat(unitAltaIn.value);
+  const uoA = parseFloat(unitAltaOut.value);
+  const uiB = parseFloat(unitBaixaIn.value);
+  const uoB = parseFloat(unitBaixaOut.value);
 
-function calcular(){
-dados = [];
+  resAlta.innerHTML = `
+  <b>Resultados Alta:</b><br>
+  H1-H3: ${calc(h13.value, uiA, uoA).toFixed(2)}<br>
+  H1-H2: ${calc(h12.value, uiA, uoA).toFixed(2)}<br>
+  H2-H3: ${calc(h23.value, uiA, uoA).toFixed(2)}
+  `;
 
-processa(
-"Alta Tensão",
-uAltaIn.value,
-uAltaOut.value,
-[["H1-H3",h13],["H1-H2",h12],["H2-H3",h23]]
-);
-
-processa(
-"Baixa Tensão",
-uBaixaIn.value,
-uBaixaOut.value,
-[["X0-X1",x01],["X0-X2",x02],["X0-X3",x03]]
-);
-
-render();
-status.className="status ok";
-status.innerText="Cálculo realizado";
-}
-
-function processa(grupo,uIn,uOut,lista){
-lista.forEach(i=>{
-let v=parseFloat(i[1].value);
-if(isNaN(v))return;
-
-let rOhm = toOhm(v,uIn);
-let rFinal = rOhm * K;
-
-dados.push({
-grupo:grupo,
-ponto:i[0],
-valor:rFinal,
-uOut:uOut
-});
-});
-}
-
-function render(){
-let html="";
-["Alta Tensão","Baixa Tensão"].forEach(g=>{
-html+=`<h3>${g}</h3><table><tr><th>Ponto</th><th>Resultado</th></tr>`;
-dados.filter(d=>d.grupo==g).forEach(d=>{
-html+=`<tr><td>${d.ponto}</td><td>${fromOhm(d.valor,d.uOut)}</td></tr>`;
-});
-html+="</table>";
-});
-resultado.innerHTML=html;
-}
-
-function pdf(){
-if(dados.length==0)return alert("Calcule antes");
-const {jsPDF}=window.jspdf;
-let p=new jsPDF();
-p.text("RELATÓRIO DE ENSAIO DE RESISTÊNCIA DE ENROLAMENTO",15,20);
-let y=35;
-dados.forEach(d=>{
-p.text(`${d.grupo} ${d.ponto}: ${fromOhm(d.valor,d.uOut)}`,15,y);
-y+=8;
-});
-p.text("Produzido pela Equipe Alpha",15,y+10);
-p.save("ensaio_resistencia.pdf");
-}
-
-function novo(){
-document.querySelectorAll("input").forEach(i=>i.value="");
-dados=[];
-resultado.innerHTML="";
-status.className="status aguardando";
-status.innerText="Aguardando dados";
-}
-
-function exemplo(){
-tm.value=25;
-h13.value=12;
-h12.value=11.8;
-h23.value=12.1;
-x01.value=0.8;
-x02.value=0.82;
-x03.value=0.79;
+  resBaixa.innerHTML = `
+  <b>Resultados Baixa:</b><br>
+  X0-X1: ${calc(x01.value, uiB, uoB).toFixed(2)}<br>
+  X0-X2: ${calc(x02.value, uiB, uoB).toFixed(2)}<br>
+  X0-X3: ${calc(x03.value, uiB, uoB).toFixed(2)}
+  `;
 }
 </script>
 
