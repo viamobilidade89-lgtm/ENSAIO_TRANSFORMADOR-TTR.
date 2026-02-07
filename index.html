@@ -2,199 +2,222 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Ensaio de Resistência – Transformador</title>
+<title>Ensaio de Resistência de Enrolamento</title>
 
 <style>
-body {
-  background:#0f172a;
-  font-family: Arial, sans-serif;
-  color:#e5e7eb;
+body{
+  font-family: "Segoe UI", Arial, sans-serif;
+  background:#e9ecef;
   margin:0;
   padding:20px;
 }
-.container {
+
+.app{
   max-width:1000px;
   margin:auto;
+  background:#ffffff;
+  border-radius:8px;
+  padding:25px;
 }
-.card {
-  background:#020617;
-  border-radius:12px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 0 15px rgba(0,0,0,0.4);
-}
-h1 {
+
+h1{
   text-align:center;
-  margin-bottom:30px;
+  margin-bottom:25px;
 }
-h2 {
-  border-left:5px solid #22c55e;
+
+h2{
+  border-left:5px solid #333;
   padding-left:10px;
+  margin-top:30px;
 }
-.grid {
+
+.steps{
+  background:#f8f9fa;
+  border:1px solid #ccc;
+  padding:15px;
+  border-radius:5px;
+}
+
+.steps li{
+  margin-bottom:8px;
+}
+
+.grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
   gap:15px;
 }
-label {
-  font-weight:bold;
-  font-size:14px;
+
+.box{
+  border:1px solid #ccc;
+  padding:15px;
+  border-radius:5px;
+  background:#fafafa;
 }
-input, select {
+
+label{
+  font-weight:600;
+}
+
+input, select{
   width:100%;
-  padding:8px;
-  border-radius:6px;
-  border:none;
-  margin-top:5px;
+  padding:6px;
+  margin-top:4px;
 }
-.result {
-  background:#020617;
-  border:1px solid #22c55e;
-  border-radius:8px;
+
+.result{
+  background:#eef1f5;
   padding:10px;
+  border-radius:5px;
   margin-top:10px;
 }
-button {
-  background:#22c55e;
-  border:none;
-  padding:12px 20px;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
-}
-button:hover {
-  background:#16a34a;
-}
-.footer {
-  text-align:center;
+
+.actions{
+  display:flex;
+  gap:15px;
   margin-top:30px;
-  opacity:0.7;
 }
-.steps li {
-  margin-bottom:6px;
+
+button{
+  padding:10px 20px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.calc{
+  background:#2f8f2f;
+  color:#fff;
+}
+
+.clear{
+  background:#6c757d;
+  color:#fff;
+}
+
+footer{
+  text-align:center;
+  margin-top:40px;
+  font-style:italic;
+  color:#444;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
 
-<h1>Ensaio de Resistência Ôhmica</h1>
+<div class="app">
 
-<div class="card">
+<h1>Ensaio de Resistência de Enrolamento</h1>
+
 <h2>Procedimento do Ensaio</h2>
-<ul class="steps">
-<li>1️⃣ Medição com TRR</li>
-<li>2️⃣ Multiplicar leitura por 1,5</li>
-<li>3️⃣ Calcular fator térmico</li>
-<li>4️⃣ Aplicar fator térmico ao valor corrigido</li>
-</ul>
+<div class="steps">
+<ol>
+  <li>Realizar as medições com o TRR nos pontos definidos.</li>
+  <li>Registrar todas as leituras da Alta e da Baixa Tensão.</li>
+  <li>Multiplicar cada valor medido pela constante 1,5.</li>
+  <li>Medir a temperatura do enrolamento no momento do ensaio.</li>
+  <li>Calcular o fator térmico: (235 + 75) / (235 + Tm).</li>
+  <li>Multiplicar cada valor corrigido pelo fator térmico.</li>
+  <li>Registrar os valores finais em mili-ohms.</li>
+</ol>
 </div>
 
-<div class="card">
 <h2>Dados Gerais</h2>
-<label>Temperatura Medida (°C)</label>
-<input type="number" id="tm" step="0.1">
+<div class="box grid">
+  <div>
+    <label>Temperatura medida (°C)</label>
+    <input type="number" id="tm" step="0.1">
+  </div>
 </div>
 
-<div class="card">
 <h2>Alta Tensão</h2>
-
-<label>Unidade de Entrada</label>
-<select id="uAltaIn">
+<div class="box">
+<label>Unidade de entrada</label>
+<select id="unitAltaIn">
   <option value="1">Ω</option>
   <option value="0.001">mΩ</option>
 </select>
 
-<label>Unidade de Saída</label>
-<select id="uAltaOut">
+<label>Unidade de saída</label>
+<select id="unitAltaOut">
   <option value="1">Ω</option>
   <option value="0.001">mΩ</option>
 </select>
 
 <div class="grid">
-  <div>
-    <label>H1 – H3</label>
-    <input type="number" id="h13">
-  </div>
-  <div>
-    <label>H1 – H2</label>
-    <input type="number" id="h12">
-  </div>
-  <div>
-    <label>H2 – H3</label>
-    <input type="number" id="h23">
-  </div>
+  <div><label>H1 - H3</label><input type="number" id="h13"></div>
+  <div><label>H1 - H2</label><input type="number" id="h12"></div>
+  <div><label>H2 - H3</label><input type="number" id="h23"></div>
 </div>
 
 <div class="result" id="resAlta"></div>
 </div>
 
-<div class="card">
 <h2>Baixa Tensão</h2>
-
-<label>Unidade de Entrada</label>
-<select id="uBaixaIn">
+<div class="box">
+<label>Unidade de entrada</label>
+<select id="unitBaixaIn">
   <option value="0.001">mΩ</option>
   <option value="1">Ω</option>
 </select>
 
-<label>Unidade de Saída</label>
-<select id="uBaixaOut">
+<label>Unidade de saída</label>
+<select id="unitBaixaOut">
   <option value="0.001">mΩ</option>
   <option value="1">Ω</option>
 </select>
 
 <div class="grid">
-  <div>
-    <label>X0 – X1</label>
-    <input type="number" id="x01">
-  </div>
-  <div>
-    <label>X0 – X2</label>
-    <input type="number" id="x02">
-  </div>
-  <div>
-    <label>X0 – X3</label>
-    <input type="number" id="x03">
-  </div>
+  <div><label>X0 - X1</label><input type="number" id="x01"></div>
+  <div><label>X0 - X2</label><input type="number" id="x02"></div>
+  <div><label>X0 - X3</label><input type="number" id="x03"></div>
 </div>
 
 <div class="result" id="resBaixa"></div>
 </div>
 
-<button onclick="calcular()">Calcular Resultados</button>
-
-<div class="footer">
-Produzido pela Equipe Alpha
+<div class="actions">
+  <button class="calc" onclick="calcular()">Calcular</button>
+  <button class="clear" onclick="location.reload()">Limpar</button>
 </div>
+
+<footer>
+Produzido pela Equipe Alpha
+</footer>
 
 </div>
 
 <script>
-function calcular() {
+function calcular(){
   const T = 235;
   const Tr = 75;
   const tm = parseFloat(document.getElementById("tm").value);
   const F = (T + Tr) / (T + tm);
 
-  function r(v, ui, uo) {
-    return (v * ui * 1.5 * F) / uo;
+  function calc(v, uIn, uOut){
+    return (v * uIn * 1.5 * F) / uOut;
   }
 
+  const uiA = parseFloat(unitAltaIn.value);
+  const uoA = parseFloat(unitAltaOut.value);
+  const uiB = parseFloat(unitBaixaIn.value);
+  const uoB = parseFloat(unitBaixaOut.value);
+
   resAlta.innerHTML = `
-<b>Resultados – Alta</b><br>
-H1-H3: ${r(h13.value, uAltaIn.value, uAltaOut.value).toFixed(2)}<br>
-H1-H2: ${r(h12.value, uAltaIn.value, uAltaOut.value).toFixed(2)}<br>
-H2-H3: ${r(h23.value, uAltaIn.value, uAltaOut.value).toFixed(2)}
-`;
+  <b>Resultados – Alta Tensão</b><br>
+  H1-H3: ${calc(h13.value, uiA, uoA).toFixed(2)}<br>
+  H1-H2: ${calc(h12.value, uiA, uoA).toFixed(2)}<br>
+  H2-H3: ${calc(h23.value, uiA, uoA).toFixed(2)}
+  `;
 
   resBaixa.innerHTML = `
-<b>Resultados – Baixa</b><br>
-X0-X1: ${r(x01.value, uBaixaIn.value, uBaixaOut.value).toFixed(2)}<br>
-X0-X2: ${r(x02.value, uBaixaIn.value, uBaixaOut.value).toFixed(2)}<br>
-X0-X3: ${r(x03.value, uBaixaIn.value, uBaixaOut.value).toFixed(2)}
-`;
+  <b>Resultados – Baixa Tensão</b><br>
+  X0-X1: ${calc(x01.value, uiB, uoB).toFixed(2)}<br>
+  X0-X2: ${calc(x02.value, uiB, uoB).toFixed(2)}<br>
+  X0-X3: ${calc(x03.value, uiB, uoB).toFixed(2)}
+  `;
 }
 </script>
 
