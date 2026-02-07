@@ -5,23 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ensaio de Resistência</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-body{margin:0;background:#f2f2f2}
-header{background:#1f1f1f;color:#fff;padding:15px;text-align:center;font-size:18px;font-weight:bold}
-section{background:#fff;margin:10px;padding:15px;border-radius:8px}
-h2{display:flex;justify-content:space-between;align-items:center;font-size:16px;margin:0 0 10px}
-label{display:block;margin-top:10px;font-size:14px}
-input,select{width:100%;padding:10px;font-size:16px;margin-top:5px}
-.result{margin-top:15px;background:#f0f0f0;padding:10px;border-radius:6px;font-size:15px}
-.actions{display:flex;gap:10px;margin:10px}
-button{flex:1;padding:15px;font-size:16px;font-weight:bold;border:none;border-radius:8px}
-.calc{background:#2e7d32;color:#fff}
-.pdf{background:#0277bd;color:#fff}
-.clear{background:#616161;color:#fff}
-footer{text-align:center;font-size:13px;color:#555;padding:10px}
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:#f4f4f4}
+header{background:#111;color:#fff;padding:14px;text-align:center;font-weight:bold}
+section{background:#fff;margin:10px;padding:14px;border-radius:10px}
+h2{margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.small-select{font-size:13px;padding:4px}
+label{font-size:14px;margin-top:8px;display:block}
+input{width:100%;padding:10px;font-size:16px;margin-top:4px}
+.result-box{background:#eaeaea;margin:10px;padding:12px;border-radius:8px}
+.unit-btn{margin-top:6px;font-size:13px;padding:6px}
+button{border:none;border-radius:8px}
+.calc{background:#2e7d32;color:#fff;padding:14px;width:100%;font-size:16px}
+footer{text-align:center;font-size:13px;padding:10px;color:#555}
 </style>
 </head>
 
@@ -31,119 +28,107 @@ footer{text-align:center;font-size:13px;color:#555;padding:10px}
 
 <section>
 <label>Temperatura medida (°C)</label>
-<input type="number" id="tm" step="0.1" placeholder="Ex: 22.6">
+<input id="tm" type="number" step="0.1" placeholder="Ex: 22.6">
 </section>
 
 <section>
 <h2>
 Entrada
-<select id="unitEntradaIn">
+<select id="unitIn" class="small-select">
+<option value="1e-12">pΩ</option>
+<option value="1e-9">nΩ</option>
+<option value="1e-6">µΩ</option>
+<option value="1e-3">mΩ</option>
 <option value="1">Ω</option>
-<option value="0.001">mΩ</option>
+<option value="1e3">kΩ</option>
 </select>
 </h2>
 
-<label>H1 - H3</label><input id="h13" type="number">
-<label>H1 - H2</label><input id="h12" type="number">
-<label>H2 - H3</label><input id="h23" type="number">
-
-<div class="result" id="resEntrada"></div>
+<label>H1 - H3</label><input id="e1">
+<label>H1 - H2</label><input id="e2">
+<label>H2 - H3</label><input id="e3">
 </section>
 
 <section>
 <h2>
 Saída
-<select id="unitSaidaIn">
-<option value="0.001">mΩ</option>
+<select id="unitOut" class="small-select">
+<option value="1e-12">pΩ</option>
+<option value="1e-9">nΩ</option>
+<option value="1e-6">µΩ</option>
+<option value="1e-3">mΩ</option>
 <option value="1">Ω</option>
+<option value="1e3">kΩ</option>
 </select>
 </h2>
 
-<label>X0 - X1</label><input id="x01" type="number">
-<label>X0 - X2</label><input id="x02" type="number">
-<label>X0 - X3</label><input id="x03" type="number">
-
-<div class="result" id="resSaida"></div>
+<label>X0 - X1</label><input id="s1">
+<label>X0 - X2</label><input id="s2">
+<label>X0 - X3</label><input id="s3">
 </section>
 
-<div class="actions">
 <button class="calc" onclick="calcular()">Calcular</button>
-<button class="pdf" onclick="gerarPDF()">Gerar PDF</button>
-<button class="clear" onclick="location.reload()">Limpar</button>
-</div>
+
+<section class="result-box">
+<h3>Resultados – Entrada</h3>
+<button class="unit-btn" onclick="toggleUnit('entrada')">Mudar unidade</button>
+<div id="resEntrada"></div>
+</section>
+
+<section class="result-box">
+<h3>Resultados – Saída</h3>
+<button class="unit-btn" onclick="toggleUnit('saida')">Mudar unidade</button>
+<div id="resSaida"></div>
+</section>
 
 <footer>Produzido pela Equipe Alpha</footer>
 
 <script>
-let dados = {};
+let unidadeResultadoEntrada = 1;
+let unidadeResultadoSaida = 1;
 
-function fator(tm){
-  return (235 + 75) / (235 + tm);
-}
-
-function calc(v, unidade, F){
-  return (v * unidade * 1.5) * F;
+function calcValor(v, unidade){
+  if(v === "") return null;
+  const tm = parseFloat(document.getElementById("tm").value);
+  const Ftemp = (235+75)/(235+tm);
+  const leitura = parseFloat(v) * unidade;
+  return leitura * 1.5 * Ftemp;
 }
 
 function calcular(){
-  const tm = parseFloat(document.getElementById("tm").value);
-  const F = fator(tm);
+  const ui = parseFloat(unitIn.value);
+  const us = parseFloat(unitOut.value);
 
-  const uE = parseFloat(unitEntradaIn.value);
-  const uS = parseFloat(unitSaidaIn.value);
+  const entrada = [
+    ["H1-H3", calcValor(e1.value, ui)],
+    ["H1-H2", calcValor(e2.value, ui)],
+    ["H2-H3", calcValor(e3.value, ui)]
+  ];
 
-  dados = {
-    tm,
-    F,
-    entrada: {
-      h13: calc(h13.value,uE,F),
-      h12: calc(h12.value,uE,F),
-      h23: calc(h23.value,uE,F)
-    },
-    saida: {
-      x01: calc(x01.value,uS,F),
-      x02: calc(x02.value,uS,F),
-      x03: calc(x03.value,uS,F)
-    }
-  };
+  const saida = [
+    ["X0-X1", calcValor(s1.value, us)],
+    ["X0-X2", calcValor(s2.value, us)],
+    ["X0-X3", calcValor(s3.value, us)]
+  ];
 
-  resEntrada.innerHTML = `
-<b>Resultados – Entrada</b><br>
-H1-H3: ${dados.entrada.h13.toFixed(2)}<br>
-H1-H2: ${dados.entrada.h12.toFixed(2)}<br>
-H2-H3: ${dados.entrada.h23.toFixed(2)}
-`;
+  resEntrada.innerHTML = entrada
+    .filter(v=>v[1]!=null)
+    .map(v=>`${v[0]}: ${(v[1]/unidadeResultadoEntrada).toExponential(3)}`)
+    .join("<br>");
 
-  resSaida.innerHTML = `
-<b>Resultados – Saída</b><br>
-X0-X1: ${dados.saida.x01.toFixed(2)}<br>
-X0-X2: ${dados.saida.x02.toFixed(2)}<br>
-X0-X3: ${dados.saida.x03.toFixed(2)}
-`;
+  resSaida.innerHTML = saida
+    .filter(v=>v[1]!=null)
+    .map(v=>`${v[0]}: ${(v[1]/unidadeResultadoSaida).toExponential(3)}`)
+    .join("<br>");
 }
 
-function gerarPDF(){
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-
-  pdf.text("Ensaio de Resistência de Enrolamento", 10, 10);
-  pdf.text(`Temperatura medida: ${dados.tm} °C`, 10, 20);
-  pdf.text("Procedimento aplicado conforme norma técnica.",10,30);
-
-  pdf.text("Entrada:",10,45);
-  pdf.text(`H1-H3: ${dados.entrada.h13.toFixed(2)}`,10,55);
-  pdf.text(`H1-H2: ${dados.entrada.h12.toFixed(2)}`,10,65);
-  pdf.text(`H2-H3: ${dados.entrada.h23.toFixed(2)}`,10,75);
-
-  pdf.text("Saída:",10,90);
-  pdf.text(`X0-X1: ${dados.saida.x01.toFixed(2)}`,10,100);
-  pdf.text(`X0-X2: ${dados.saida.x02.toFixed(2)}`,10,110);
-  pdf.text(`X0-X3: ${dados.saida.x03.toFixed(2)}`,10,120);
-
-  pdf.text("Conclusão:",10,140);
-  pdf.text("Resultados dentro dos parâmetros aceitáveis.",10,150);
-
-  pdf.save("ensaio_resistencia.pdf");
+function toggleUnit(tipo){
+  if(tipo==="entrada"){
+    unidadeResultadoEntrada *= 1000;
+  } else {
+    unidadeResultadoSaida *= 1000;
+  }
+  calcular();
 }
 </script>
 
