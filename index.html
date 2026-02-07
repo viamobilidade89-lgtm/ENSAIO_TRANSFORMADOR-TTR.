@@ -7,24 +7,27 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{font-family:Arial;background:#f2f2f2;padding:10px}
-.container{background:#fff;padding:15px;border-radius:8px;max-width:900px;margin:auto}
-h2{text-align:center}
-.bloco{border:1px solid #ddd;padding:10px;border-radius:6px;margin-top:12px}
+body{font-family:Arial;background:#eef1f4;padding:10px}
+.container{background:#fff;padding:15px;border-radius:10px;max-width:950px;margin:auto}
+h2{text-align:center;margin-bottom:5px}
+footer{text-align:center;margin-top:20px;font-size:12px;color:#555}
+.bloco{border:1px solid #ccc;padding:12px;border-radius:8px;margin-top:12px}
+.flex{display:flex;gap:10px;align-items:center}
+.flex input,.flex select{flex:1}
 label{font-weight:bold}
-input,select,button{width:100%;padding:8px;margin-top:5px}
-button{border:none;border-radius:5px;color:#fff;margin-top:8px}
+input,select,button{padding:8px;margin-top:5px;width:100%}
+button{border:none;border-radius:6px;color:#fff;font-weight:bold}
 .calcular{background:#1976d2}
 .pdf{background:#2e7d32}
 .novo{background:#757575}
 .exemplo{background:#0288d1}
-.copiar{background:#6a1b9a}
-.status{padding:6px;border-radius:5px;text-align:center;font-weight:bold}
-.aguardando{background:#fff3cd}
+.converter{background:#6a1b9a;margin-top:10px}
+.status{padding:6px;border-radius:5px;text-align:center;font-weight:bold;margin-top:10px}
 .ok{background:#d4edda}
+.aguardando{background:#fff3cd}
 table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #aaa;padding:6px;text-align:center}
-.resultado{background:#e3f2fd}
+th,td{border:1px solid #999;padding:6px;text-align:center}
+.resultado{background:#f1f8ff}
 </style>
 </head>
 
@@ -40,134 +43,159 @@ th,td{border:1px solid #aaa;padding:6px;text-align:center}
 <input id="tm" type="number">
 </div>
 
-<div class="bloco">
-<label>Unidade de entrada (equipamento)</label>
-<select id="unEntrada">
-<option value="m">mΩ</option>
-<option value="u">µΩ</option>
-<option value="o">Ω</option>
-<option value="k">kΩ</option>
-<option value="M">MΩ</option>
-</select>
-</div>
-
+<!-- ALTA -->
 <div class="bloco">
 <h3>Alta Tensão</h3>
-<label>H1 - H3</label><input id="h13">
-<label>H1 - H2</label><input id="h12">
-<label>H2 - H3</label><input id="h23">
-</div>
-
-<div class="bloco">
-<h3>Baixa Tensão</h3>
-<label>X0 - X1</label><input id="x01">
-<label>X0 - X2</label><input id="x02">
-<label>X0 - X3</label><input id="x03">
-</div>
-
-<div class="bloco">
-<label>Unidade de saída</label>
-<select id="unSaida">
+<label>Unidade de entrada</label>
+<select id="uAlta">
 <option value="m">mΩ</option>
 <option value="u">µΩ</option>
 <option value="o">Ω</option>
 <option value="k">kΩ</option>
 <option value="M">MΩ</option>
 </select>
+
+<div class="flex">
+<input id="h13" placeholder="H1 - H3">
+<input id="h12" placeholder="H1 - H2">
+<input id="h23" placeholder="H2 - H3">
+</div>
+</div>
+
+<!-- BAIXA -->
+<div class="bloco">
+<h3>Baixa Tensão</h3>
+<label>Unidade de entrada</label>
+<select id="uBaixa">
+<option value="m">mΩ</option>
+<option value="u">µΩ</option>
+<option value="o">Ω</option>
+<option value="k">kΩ</option>
+<option value="M">MΩ</option>
+</select>
+
+<div class="flex">
+<input id="x01" placeholder="X0 - X1">
+<input id="x02" placeholder="X0 - X2">
+<input id="x03" placeholder="X0 - X3">
+</div>
 </div>
 
 <button class="calcular" onclick="calcular()">Calcular</button>
 <button class="exemplo" onclick="exemplo()">Preencher exemplo</button>
 
-<div class="bloco resultado" id="res"></div>
+<!-- RESULTADOS -->
+<div class="bloco resultado" id="res">
+<h3>Resultados</h3>
 
-<button class="copiar" onclick="copiar()">Copiar resultados</button>
+<label>Unidade de saída</label>
+<select id="uSaida" onchange="reconverter()">
+<option value="m">mΩ</option>
+<option value="u">µΩ</option>
+<option value="o">Ω</option>
+<option value="k">kΩ</option>
+<option value="M">MΩ</option>
+</select>
+
+<div id="tabelas"></div>
+</div>
+
 <button class="pdf" onclick="pdf()">Gerar PDF</button>
-<button class="novo" onclick="novo()">Novo ensaio</button>
+<button class="novo" onclick="novo()">Novo Ensaio</button>
+
+<footer>
+Produzido pela <strong>Equipe Alpha</strong>
+</footer>
 
 </div>
 
 <script>
 const T=235,Tr=75,K=1.5;
-let textoResultados="";
+let cacheResultados=[];
 
-function entradaParaOhm(v,u){
-if(u=="m") return v/1000;
-if(u=="u") return v/1000000;
-if(u=="o") return v;
-if(u=="k") return v*1000;
-if(u=="M") return v*1000000;
+function toOhm(v,u){
+if(u=="m")return v/1000;
+if(u=="u")return v/1e6;
+if(u=="o")return v;
+if(u=="k")return v*1000;
+if(u=="M")return v*1e6;
 }
 
-function saida(v,u){
-if(u=="m") return (v*1000).toFixed(2)+" mΩ";
-if(u=="u") return (v*1000000).toFixed(2)+" µΩ";
-if(u=="o") return v.toFixed(4)+" Ω";
-if(u=="k") return (v/1000).toFixed(4)+" kΩ";
-if(u=="M") return (v/1000000).toFixed(6)+" MΩ";
+function fromOhm(v,u){
+if(u=="m")return (v*1000).toFixed(2)+" mΩ";
+if(u=="u")return (v*1e6).toFixed(2)+" µΩ";
+if(u=="o")return v.toFixed(4)+" Ω";
+if(u=="k")return (v/1000).toFixed(4)+" kΩ";
+if(u=="M")return (v/1e6).toFixed(6)+" MΩ";
 }
 
 function calcular(){
-let tmValor=parseFloat(tm.value);
-if(isNaN(tmValor)) return alert("Informe a temperatura Tm");
+let tmV=parseFloat(tm.value);
+if(isNaN(tmV)) return alert("Informe Tm");
 
-let f=(T+Tr)/(T+tmValor);
-let uIn=unEntrada.value;
-let uOut=unSaida.value;
+cacheResultados=[];
+let f=(T+Tr)/(T+tmV);
 
-let at=[["H1-H3",h13.value],["H1-H2",h12.value],["H2-H3",h23.value]];
-let bt=[["X0-X1",x01.value],["X0-X2",x02.value],["X0-X3",x03.value]];
+processa("Alta Tensão",uAlta.value,[["H1-H3",h13],["H1-H2",h12],["H2-H3",h23]],f);
+processa("Baixa Tensão",uBaixa.value,[["X0-X1",x01],["X0-X2",x02],["X0-X3",x03]],f);
 
-let html="<h3>Resultados</h3>";
-textoResultados="";
-
-function tabela(nome,dados){
-html+=`<h4>${nome}</h4><table><tr><th>Ponto</th><th>Valor</th></tr>`;
-dados.forEach(d=>{
-let rMed=parseFloat(d[1]);
-if(isNaN(rMed)) return;
-let rOhm=entradaParaOhm(rMed,uIn)*K*f;
-let rFinal=saida(rOhm,uOut);
-html+=`<tr><td>${d[0]}</td><td>${rFinal}</td></tr>`;
-textoResultados+=`${nome} ${d[0]}: ${rFinal}\n`;
-});
-html+="</table>";
-}
-
-tabela("Alta Tensão",at);
-tabela("Baixa Tensão",bt);
-
-res.innerHTML=html;
+render();
 status.className="status ok";
 status.innerText="Cálculo realizado";
 }
 
-function copiar(){
-navigator.clipboard.writeText(textoResultados);
-alert("Resultados copiados");
+function processa(nome,unidade,lista,f){
+lista.forEach(i=>{
+let v=parseFloat(i[1].value);
+if(isNaN(v))return;
+let r=toOhm(v,unidade)*K*f;
+cacheResultados.push({grupo:nome,ponto:i[0],valor:r});
+});
+}
+
+function render(){
+let u=uSaida.value;
+let html="";
+["Alta Tensão","Baixa Tensão"].forEach(g=>{
+html+=`<h4>${g}</h4><table><tr><th>Ponto</th><th>Resultado</th></tr>`;
+cacheResultados.filter(x=>x.grupo==g).forEach(r=>{
+html+=`<tr><td>${r.ponto}</td><td>${fromOhm(r.valor,u)}</td></tr>`;
+});
+html+="</table>";
+});
+tabelas.innerHTML=html;
+}
+
+function reconverter(){
+if(cacheResultados.length>0) render();
+}
+
+function pdf(){
+if(cacheResultados.length==0)return alert("Calcule antes");
+const {jsPDF}=window.jspdf;
+let p=new jsPDF();
+p.text("RELATÓRIO DE ENSAIO DE RESISTÊNCIA",15,20);
+let y=35;
+cacheResultados.forEach(r=>{
+p.text(`${r.grupo} ${r.ponto}: ${fromOhm(r.valor,uSaida.value)}`,15,y);
+y+=8;
+});
+p.text("Produzido pela Equipe Alpha",15,y+10);
+p.save("ensaio_resistencia.pdf");
+}
+
+function novo(){
+document.querySelectorAll("input").forEach(i=>i.value="");
+cacheResultados=[];
+tabelas.innerHTML="";
+status.className="status aguardando";
+status.innerText="Aguardando dados";
 }
 
 function exemplo(){
 tm.value=25;
 h13.value=12;h12.value=11.8;h23.value=12.1;
 x01.value=0.8;x02.value=0.82;x03.value=0.79;
-}
-
-function novo(){
-document.querySelectorAll("input").forEach(i=>i.value="");
-res.innerHTML="";
-status.className="status aguardando";
-status.innerText="Aguardando dados";
-}
-
-function pdf(){
-if(!textoResultados) return alert("Calcule antes");
-const {jsPDF}=window.jspdf;
-let p=new jsPDF();
-p.text("RELATÓRIO DE ENSAIO DE RESISTÊNCIA",15,20);
-p.text("Data: "+new Date().toLocaleString(),15,30);
-p.text(textoResultados,15,45);
-p.save("ensaio_transformador.pdf");
 }
 </script>
 
