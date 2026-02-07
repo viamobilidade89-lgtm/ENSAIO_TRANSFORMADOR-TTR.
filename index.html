@@ -1,65 +1,119 @@
-function calcular(){
-    const tm = parseFloat(document.getElementById("tm").value);
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Resistência - TTR</title>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+    .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 10px; }
+    h1 { size: 18px; color: #1a73e8; margin: 0; }
     
-    if(isNaN(tm)) {
-        alert("Por favor, insira a temperatura medida.");
-        return;
-    }
+    section { margin-bottom: 20px; padding: 15px; border: 1px solid #e1e4e8; border-radius: 8px; }
+    label { display: block; font-weight: bold; font-size: 14px; margin-top: 10px; color: #333; }
+    input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+    select { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
+    
+    .row { display: flex; justify-content: space-between; align-items: center; }
+    button { width: 100%; padding: 15px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    button:hover { background-color: #218838; }
+    
+    .results { margin-top: 20px; background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 5px solid #ffc107; }
+    .res-line { border-bottom: 1px solid #ddd; padding: 8px 0; font-family: monospace; }
+    .unit-badge { font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
 
-    // Constantes do Ensaio
+<div class="container">
+    <header>
+        <h1>Ensaios de TTR</h1>
+        <p style="font-size: 12px; color: #666;">Cálculo de Resistência Corrigida (75°C)</p>
+    </header>
+
+    <section>
+        <label>Temperatura Medida (°C)</label>
+        <input id="tm" type="number" step="0.1" placeholder="Ex: 25">
+    </section>
+
+    <section>
+        <div class="row">
+            <label>ALTA TENSÃO (Entrada)</label>
+            <select id="unitIn">
+                <option value="1">Ω</option>
+                <option value="0.001">mΩ</option>
+            </select>
+        </div>
+        <input id="e1" type="text" placeholder="H1-H3">
+        <input id="e2" type="text" placeholder="H1-H2">
+        <input id="e3" type="text" placeholder="H2-H3">
+    </section>
+
+    <section>
+        <div class="row">
+            <label>BAIXA TENSÃO (Saída)</label>
+            <select id="unitOut">
+                <option value="0.001" selected>mΩ</option>
+                <option value="1">Ω</option>
+            </select>
+        </div>
+        <input id="s1" type="text" placeholder="X0-X1">
+        <input id="s2" type="text" placeholder="X0-X2">
+        <input id="s3" type="text" placeholder="X0-X3">
+    </section>
+
+    <button onclick="calcular()">CALCULAR AGORA</button>
+
+    <div id="divResultados" class="results" style="display:none;">
+        <strong>Resultados Corrigidos (Ω):</strong>
+        <div id="resFinal"></div>
+    </div>
+</div>
+
+<script>
+function calcular() {
+    // 1. Obter temperatura e calcular fator
+    const tm = parseFloat(document.getElementById("tm").value.replace(',', '.'));
+    if(isNaN(tm)) { alert("Insira a temperatura!"); return; }
+
     const T = 235;
     const Tr = 75;
-    const K = 1.5; // Sua constante de multiplicação
+    const K = 1.5;
     const Ftemp = (T + Tr) / (T + tm);
 
-    // Unidades (Multiplicadores)
-    const ui = parseFloat(document.getElementById("unitIn").value);
-    const us = parseFloat(document.getElementById("unitOut").value);
+    // 2. Obter multiplicadores de unidade
+    const uniEntrada = parseFloat(document.getElementById("unitIn").value);
+    const uniSaida = parseFloat(document.getElementById("unitOut").value);
 
-    // Função de cálculo rigorosa
-    const processar = (id, multiplicadorUnidade) => {
-        const valorRaw = document.getElementById(id).value.replace(',', '.');
-        const valor = parseFloat(valorRaw);
+    // 3. Função de processamento individual
+    function processar(id, multiplicador) {
+        let raw = document.getElementById(id).value.replace(',', '.');
+        if (raw === "") return null;
+        let valor = parseFloat(raw);
         
-        if(isNaN(valor)) return null;
-
-        // 1. Converte para Ohms | 2. Aplica Constante | 3. Aplica Fator Temp
-        return (valor * multiplicadorUnidade) * K * Ftemp;
-    };
-
-    const entradas = [
-        { label: "H1-H3", val: processar("e1", ui) },
-        { label: "H1-H2", val: processar("e2", ui) },
-        { label: "H2-H3", val: processar("e3", ui) }
-    ];
-
-    const saidas = [
-        { label: "X0-X1", val: processar("s1", us) },
-        { label: "X0-X2", val: processar("s2", us) },
-        { label: "X0-X3", val: processar("s3", us) }
-    ];
-
-    renderizar("resEntrada", entradas, "Ω");
-    renderizar("resSaida", saidas, "Ω");
-}
-
-function renderizar(containerId, lista, unidade) {
-    const container = document.getElementById(containerId);
-    const validos = lista.filter(item => item.val !== null);
-    
-    if(validos.length === 0) {
-        container.innerHTML = "Aguardando dados...";
-        return;
+        // FÓRMULA: (Leitura * Unidade) * 1.5 * Ftemp
+        // Primeiro converte para Ohm, depois aplica a constante e o fator
+        return (valor * multiplicador) * K * Ftemp;
     }
 
-    container.innerHTML = validos.map(item => {
-        // Se o valor for muito pequeno (comum em saída), mostra em mΩ também para conferência
-        const valorOhm = item.val.toFixed(6);
-        const valorMilli = (item.val * 1000).toFixed(4);
+    const ids = ["e1", "e2", "e3", "s1", "s2", "s3"];
+    const labels = ["H1-H3", "H1-H2", "H2-H3", "X0-X1", "X0-X2", "X0-X3"];
+    let html = "";
+
+    for(let i=0; i<ids.length; i++) {
+        let m = i < 3 ? uniEntrada : uniSaida; // Primeiros 3 são entrada, últimos 3 são saída
+        let res = processar(ids[i], m);
         
-        return `<div class="res-item">
-                    <strong>${item.label}:</strong> ${valorOhm} Ω 
-                    <small>(${valorMilli} mΩ)</small>
-                </div>`;
-    }).join("");
+        if(res !== null) {
+            html += `<div class="res-line"><b>${labels[i]}:</b> ${res.toFixed(6)} Ω</div>`;
+        }
+    }
+
+    document.getElementById("resFinal").innerHTML = html;
+    document.getElementById("divResultados").style.display = "block";
 }
+</script>
+
+</body>
+</html>
