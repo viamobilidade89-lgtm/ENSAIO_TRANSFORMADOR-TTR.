@@ -25,7 +25,6 @@ button{border:none;border-radius:5px;color:#fff;margin-top:8px}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #aaa;padding:6px;text-align:center}
 .resultado{background:#e3f2fd}
-.formula{display:none;background:#fafafa;padding:8px;border-radius:5px;font-size:14px}
 </style>
 </head>
 
@@ -42,22 +41,33 @@ th,td{border:1px solid #aaa;padding:6px;text-align:center}
 </div>
 
 <div class="bloco">
-<h3>Alta Tensão (mΩ)</h3>
-<input id="h13" placeholder="H1-H3">
-<input id="h12" placeholder="H1-H2">
-<input id="h23" placeholder="H2-H3">
+<label>Unidade de entrada (equipamento)</label>
+<select id="unEntrada">
+<option value="m">mΩ</option>
+<option value="u">µΩ</option>
+<option value="o">Ω</option>
+<option value="k">kΩ</option>
+<option value="M">MΩ</option>
+</select>
 </div>
 
 <div class="bloco">
-<h3>Baixa Tensão (mΩ)</h3>
-<input id="x01" placeholder="X0-X1">
-<input id="x02" placeholder="X0-X2">
-<input id="x03" placeholder="X0-X3">
+<h3>Alta Tensão</h3>
+<label>H1 - H3</label><input id="h13">
+<label>H1 - H2</label><input id="h12">
+<label>H2 - H3</label><input id="h23">
+</div>
+
+<div class="bloco">
+<h3>Baixa Tensão</h3>
+<label>X0 - X1</label><input id="x01">
+<label>X0 - X2</label><input id="x02">
+<label>X0 - X3</label><input id="x03">
 </div>
 
 <div class="bloco">
 <label>Unidade de saída</label>
-<select id="unidade">
+<select id="unSaida">
 <option value="m">mΩ</option>
 <option value="u">µΩ</option>
 <option value="o">Ω</option>
@@ -68,12 +78,6 @@ th,td{border:1px solid #aaa;padding:6px;text-align:center}
 
 <button class="calcular" onclick="calcular()">Calcular</button>
 <button class="exemplo" onclick="exemplo()">Preencher exemplo</button>
-<button onclick="mostrarFormula()">Mostrar / Ocultar fórmula</button>
-
-<div id="formula" class="formula">
-F = (235 + 75) / (235 + Tm)<br>
-R = Rmed × 1,5 × F
-</div>
 
 <div class="bloco resultado" id="res"></div>
 
@@ -85,38 +89,47 @@ R = Rmed × 1,5 × F
 
 <script>
 const T=235,Tr=75,K=1.5;
-let resultadosTexto="";
+let textoResultados="";
 
-function calc(v,tm){
-let f=(T+Tr)/(T+tm);
-return (v/1000)*K*f;
+function entradaParaOhm(v,u){
+if(u=="m") return v/1000;
+if(u=="u") return v/1000000;
+if(u=="o") return v;
+if(u=="k") return v*1000;
+if(u=="M") return v*1000000;
 }
 
-function conv(v,u){
-if(u=="m")return (v*1000).toFixed(2)+" mΩ";
-if(u=="u")return (v*1000000).toFixed(2)+" µΩ";
-if(u=="o")return v.toFixed(4)+" Ω";
-if(u=="k")return (v/1000).toFixed(4)+" kΩ";
-if(u=="M")return (v/1000000).toFixed(6)+" MΩ";
+function saida(v,u){
+if(u=="m") return (v*1000).toFixed(2)+" mΩ";
+if(u=="u") return (v*1000000).toFixed(2)+" µΩ";
+if(u=="o") return v.toFixed(4)+" Ω";
+if(u=="k") return (v/1000).toFixed(4)+" kΩ";
+if(u=="M") return (v/1000000).toFixed(6)+" MΩ";
 }
 
 function calcular(){
-let tm=parseFloat(tm.value);
-if(isNaN(tm))return alert("Informe Tm");
-let u=unidade.value;
+let tmValor=parseFloat(tm.value);
+if(isNaN(tmValor)) return alert("Informe a temperatura Tm");
+
+let f=(T+Tr)/(T+tmValor);
+let uIn=unEntrada.value;
+let uOut=unSaida.value;
 
 let at=[["H1-H3",h13.value],["H1-H2",h12.value],["H2-H3",h23.value]];
 let bt=[["X0-X1",x01.value],["X0-X2",x02.value],["X0-X3",x03.value]];
 
 let html="<h3>Resultados</h3>";
-resultadosTexto="";
+textoResultados="";
 
 function tabela(nome,dados){
-html+=`<h4>${nome}</h4><table><tr><th>Medição</th><th>Valor</th></tr>`;
+html+=`<h4>${nome}</h4><table><tr><th>Ponto</th><th>Valor</th></tr>`;
 dados.forEach(d=>{
-let r=conv(calc(parseFloat(d[1]),tm),u);
-html+=`<tr><td>${d[0]}</td><td>${r}</td></tr>`;
-resultadosTexto+=`${nome} ${d[0]}: ${r}\n`;
+let rMed=parseFloat(d[1]);
+if(isNaN(rMed)) return;
+let rOhm=entradaParaOhm(rMed,uIn)*K*f;
+let rFinal=saida(rOhm,uOut);
+html+=`<tr><td>${d[0]}</td><td>${rFinal}</td></tr>`;
+textoResultados+=`${nome} ${d[0]}: ${rFinal}\n`;
 });
 html+="</table>";
 }
@@ -129,12 +142,8 @@ status.className="status ok";
 status.innerText="Cálculo realizado";
 }
 
-function mostrarFormula(){
-formula.style.display=formula.style.display=="none"?"block":"none";
-}
-
 function copiar(){
-navigator.clipboard.writeText(resultadosTexto);
+navigator.clipboard.writeText(textoResultados);
 alert("Resultados copiados");
 }
 
@@ -152,12 +161,12 @@ status.innerText="Aguardando dados";
 }
 
 function pdf(){
-if(!resultadosTexto)return alert("Calcule antes");
+if(!textoResultados) return alert("Calcule antes");
 const {jsPDF}=window.jspdf;
 let p=new jsPDF();
 p.text("RELATÓRIO DE ENSAIO DE RESISTÊNCIA",15,20);
 p.text("Data: "+new Date().toLocaleString(),15,30);
-p.text(resultadosTexto,15,45);
+p.text(textoResultados,15,45);
 p.save("ensaio_transformador.pdf");
 }
 </script>
