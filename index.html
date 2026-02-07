@@ -3,61 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <title>Ensaio de Resistência – Transformador</title>
+
 <style>
 body {
+  background:#0f172a;
   font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  padding: 20px;
+  color:#e5e7eb;
+  margin:0;
+  padding:20px;
 }
 .container {
-  max-width: 900px;
-  margin: auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
+  max-width:1000px;
+  margin:auto;
+}
+.card {
+  background:#020617;
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+h1 {
+  text-align:center;
+  margin-bottom:30px;
 }
 h2 {
-  background: #1f4fd8;
-  color: #fff;
-  padding: 10px;
-  border-radius: 5px;
-}
-.section {
-  margin-bottom: 20px;
+  border-left:5px solid #22c55e;
+  padding-left:10px;
 }
 .grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
 }
 label {
-  font-weight: bold;
+  font-weight:bold;
+  font-size:14px;
 }
-input, select, button {
-  padding: 8px;
-  width: 100%;
-}
-button {
-  background: #1f4fd8;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-button:hover {
-  background: #163ca8;
+input, select {
+  width:100%;
+  padding:8px;
+  border-radius:6px;
+  border:none;
+  margin-top:5px;
 }
 .result {
-  background: #eef2ff;
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
+  background:#020617;
+  border:1px solid #22c55e;
+  border-radius:8px;
+  padding:10px;
+  margin-top:10px;
+}
+button {
+  background:#22c55e;
+  border:none;
+  padding:12px 20px;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+button:hover {
+  background:#16a34a;
 }
 .footer {
-  text-align: center;
-  margin-top: 30px;
-  font-style: italic;
-  color: #555;
+  text-align:center;
+  margin-top:30px;
+  opacity:0.7;
+}
+.steps li {
+  margin-bottom:6px;
 }
 </style>
 </head>
@@ -65,64 +79,91 @@ button:hover {
 <body>
 <div class="container">
 
-<h2>Dados Gerais</h2>
-<div class="section grid">
-  <div>
-    <label>Temperatura Medida (°C)</label>
-    <input type="number" id="tm" step="0.1">
-  </div>
+<h1>Ensaio de Resistência Ôhmica</h1>
+
+<div class="card">
+<h2>Procedimento do Ensaio</h2>
+<ul class="steps">
+<li>1️⃣ Medição com TRR</li>
+<li>2️⃣ Multiplicar leitura por 1,5</li>
+<li>3️⃣ Calcular fator térmico</li>
+<li>4️⃣ Aplicar fator térmico ao valor corrigido</li>
+</ul>
 </div>
 
+<div class="card">
+<h2>Dados Gerais</h2>
+<label>Temperatura Medida (°C)</label>
+<input type="number" id="tm" step="0.1">
+</div>
+
+<div class="card">
 <h2>Alta Tensão</h2>
-<div class="section">
+
 <label>Unidade de Entrada</label>
-<select id="unitAltaIn">
+<select id="uAltaIn">
   <option value="1">Ω</option>
   <option value="0.001">mΩ</option>
-  <option value="1000">kΩ</option>
 </select>
 
 <label>Unidade de Saída</label>
-<select id="unitAltaOut">
+<select id="uAltaOut">
   <option value="1">Ω</option>
   <option value="0.001">mΩ</option>
-  <option value="1000">kΩ</option>
 </select>
 
 <div class="grid">
-  <div><label>H1-H3</label><input type="number" id="h13"></div>
-  <div><label>H1-H2</label><input type="number" id="h12"></div>
-  <div><label>H2-H3</label><input type="number" id="h23"></div>
+  <div>
+    <label>H1 – H3</label>
+    <input type="number" id="h13">
+  </div>
+  <div>
+    <label>H1 – H2</label>
+    <input type="number" id="h12">
+  </div>
+  <div>
+    <label>H2 – H3</label>
+    <input type="number" id="h23">
+  </div>
 </div>
 
 <div class="result" id="resAlta"></div>
 </div>
 
+<div class="card">
 <h2>Baixa Tensão</h2>
-<div class="section">
+
 <label>Unidade de Entrada</label>
-<select id="unitBaixaIn">
+<select id="uBaixaIn">
   <option value="0.001">mΩ</option>
   <option value="1">Ω</option>
 </select>
 
 <label>Unidade de Saída</label>
-<select id="unitBaixaOut">
+<select id="uBaixaOut">
   <option value="0.001">mΩ</option>
   <option value="1">Ω</option>
 </select>
 
 <div class="grid">
-  <div><label>X0-X1</label><input type="number" id="x01"></div>
-  <div><label>X0-X2</label><input type="number" id="x02"></div>
-  <div><label>X0-X3</label><input type="number" id="x03"></div>
+  <div>
+    <label>X0 – X1</label>
+    <input type="number" id="x01">
+  </div>
+  <div>
+    <label>X0 – X2</label>
+    <input type="number" id="x02">
+  </div>
+  <div>
+    <label>X0 – X3</label>
+    <input type="number" id="x03">
+  </div>
 </div>
 
 <div class="result" id="resBaixa"></div>
 </div>
 
-<button onclick="calcular()">Calcular</button>
-<button onclick="location.reload()">Limpar</button>
+<button onclick="calcular()">Calcular Resultados</button>
 
 <div class="footer">
 Produzido pela Equipe Alpha
@@ -137,28 +178,23 @@ function calcular() {
   const tm = parseFloat(document.getElementById("tm").value);
   const F = (T + Tr) / (T + tm);
 
-  function calc(valor, uIn, uOut) {
-    return (valor * uIn * 1.5 * F) / uOut;
+  function r(v, ui, uo) {
+    return (v * ui * 1.5 * F) / uo;
   }
 
-  const uiA = parseFloat(unitAltaIn.value);
-  const uoA = parseFloat(unitAltaOut.value);
-  const uiB = parseFloat(unitBaixaIn.value);
-  const uoB = parseFloat(unitBaixaOut.value);
-
   resAlta.innerHTML = `
-  <b>Resultados Alta:</b><br>
-  H1-H3: ${calc(h13.value, uiA, uoA).toFixed(2)}<br>
-  H1-H2: ${calc(h12.value, uiA, uoA).toFixed(2)}<br>
-  H2-H3: ${calc(h23.value, uiA, uoA).toFixed(2)}
-  `;
+<b>Resultados – Alta</b><br>
+H1-H3: ${r(h13.value, uAltaIn.value, uAltaOut.value).toFixed(2)}<br>
+H1-H2: ${r(h12.value, uAltaIn.value, uAltaOut.value).toFixed(2)}<br>
+H2-H3: ${r(h23.value, uAltaIn.value, uAltaOut.value).toFixed(2)}
+`;
 
   resBaixa.innerHTML = `
-  <b>Resultados Baixa:</b><br>
-  X0-X1: ${calc(x01.value, uiB, uoB).toFixed(2)}<br>
-  X0-X2: ${calc(x02.value, uiB, uoB).toFixed(2)}<br>
-  X0-X3: ${calc(x03.value, uiB, uoB).toFixed(2)}
-  `;
+<b>Resultados – Baixa</b><br>
+X0-X1: ${r(x01.value, uBaixaIn.value, uBaixaOut.value).toFixed(2)}<br>
+X0-X2: ${r(x02.value, uBaixaIn.value, uBaixaOut.value).toFixed(2)}<br>
+X0-X3: ${r(x03.value, uBaixaIn.value, uBaixaOut.value).toFixed(2)}
+`;
 }
 </script>
 
