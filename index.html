@@ -1,122 +1,38 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ensaio de Resistência</title>
-
-<style>
-*{box-sizing:border-box;font-family:Arial}
-body{margin:0;background:#f4f4f4}
-header{background:#111;color:#fff;padding:14px;text-align:center;font-weight:bold}
-section{background:#fff;margin:10px;padding:14px;border-radius:10px}
-h2{margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
-.small-select{font-size:13px;padding:4px}
-label{font-size:14px;margin-top:8px;display:block}
-input{width:100%;padding:10px;font-size:16px;margin-top:4px}
-.result-box{background:#eaeaea;margin:10px;padding:12px;border-radius:8px}
-.unit-btn{margin-top:6px;font-size:13px;padding:6px}
-button{border:none;border-radius:8px}
-.calc{background:#2e7d32;color:#fff;padding:14px;width:100%;font-size:16px}
-footer{text-align:center;font-size:13px;padding:10px;color:#555}
-</style>
-</head>
-
-<body>
-
-<header>Ensaio de Resistência de Enrolamento</header>
-
-<section>
-<label>Temperatura medida (°C)</label>
-<input id="tm" type="number" step="0.1" placeholder="Ex: 22.6">
-</section>
-
-<section>
-<h2>
-Entrada
-<select id="unitIn" class="small-select">
-<option value="1e-12">pΩ</option>
-<option value="1e-9">nΩ</option>
-<option value="1e-6">µΩ</option>
-<option value="1e-3">mΩ</option>
-<option value="1">Ω</option>
-<option value="1e3">kΩ</option>
-</select>
-</h2>
-
-<label>H1 - H3</label><input id="e1">
-<label>H1 - H2</label><input id="e2">
-<label>H2 - H3</label><input id="e3">
-</section>
-
-<section>
-<h2>
-Saída
-<select id="unitOut" class="small-select">
-<option value="1e-12">pΩ</option>
-<option value="1e-9">nΩ</option>
-<option value="1e-6">µΩ</option>
-<option value="1e-3">mΩ</option>
-<option value="1">Ω</option>
-<option value="1e3">kΩ</option>
-</select>
-</h2>
-
-<label>X0 - X1</label><input id="s1">
-<label>X0 - X2</label><input id="s2">
-<label>X0 - X3</label><input id="s3">
-</section>
-
-<button class="calc" onclick="calcular()">Calcular</button>
-
-<section class="result-box">
-<h3>Resultados – Entrada</h3>
-<button class="unit-btn" onclick="toggleUnit('entrada')">Mudar unidade</button>
-<div id="resEntrada"></div>
-</section>
-
-<section class="result-box">
-<h3>Resultados – Saída</h3>
-<button class="unit-btn" onclick="toggleUnit('saida')">Mudar unidade</button>
-<div id="resSaida"></div>
-</section>
-
-<footer>Produzido pela Equipe Alpha</footer>
-
 <script>
 let unidadeResultadoEntrada = 1;
 let unidadeResultadoSaida = 1;
 
 function calcValor(v, unidade){
-  if(v === "") return null;
+  if(v === "" || isNaN(v)) return null;
   const tm = parseFloat(document.getElementById("tm").value);
+  if(isNaN(tm)) return null;
   const Ftemp = (235+75)/(235+tm);
   const leitura = parseFloat(v) * unidade;
   return leitura * 1.5 * Ftemp;
 }
 
 function calcular(){
-  const ui = parseFloat(unitIn.value);
-  const us = parseFloat(unitOut.value);
+  const ui = parseFloat(document.getElementById("unitIn").value);
+  const us = parseFloat(document.getElementById("unitOut").value);
 
   const entrada = [
-    ["H1-H3", calcValor(e1.value, ui)],
-    ["H1-H2", calcValor(e2.value, ui)],
-    ["H2-H3", calcValor(e3.value, ui)]
+    ["H1-H3", calcValor(document.getElementById("e1").value, ui)],
+    ["H1-H2", calcValor(document.getElementById("e2").value, ui)],
+    ["H2-H3", calcValor(document.getElementById("e3").value, ui)]
   ];
 
   const saida = [
-    ["X0-X1", calcValor(s1.value, us)],
-    ["X0-X2", calcValor(s2.value, us)],
-    ["X0-X3", calcValor(s3.value, us)]
+    ["X0-X1", calcValor(document.getElementById("s1").value, us)],
+    ["X0-X2", calcValor(document.getElementById("s2").value, us)],
+    ["X0-X3", calcValor(document.getElementById("s3").value, us)]
   ];
 
-  resEntrada.innerHTML = entrada
+  document.getElementById("resEntrada").innerHTML = entrada
     .filter(v=>v[1]!=null)
     .map(v=>`${v[0]}: ${(v[1]/unidadeResultadoEntrada).toExponential(3)}`)
     .join("<br>");
 
-  resSaida.innerHTML = saida
+  document.getElementById("resSaida").innerHTML = saida
     .filter(v=>v[1]!=null)
     .map(v=>`${v[0]}: ${(v[1]/unidadeResultadoSaida).toExponential(3)}`)
     .join("<br>");
@@ -131,6 +47,3 @@ function toggleUnit(tipo){
   calcular();
 }
 </script>
-
-</body>
-</html>
