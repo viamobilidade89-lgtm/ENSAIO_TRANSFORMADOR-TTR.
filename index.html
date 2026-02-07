@@ -3,57 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha TTR - Pro Custom</title>
+    <title>Alpha TTR - Personalizado</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* Variáveis Dinâmicas Controladas pelo Usuário */
         :root { 
-            --bg-color: #121212; 
-            --card-bg: #1e1e1e; 
-            --primary-color: #3d5afe; 
-            --text-color: #ffffff; 
-            --border-color: #333333;
+            --bg-color: #0f172a; 
+            --card-bg: #1e293b; 
+            --primary-color: #38bdf8; 
+            --text-color: #f8fafc; 
+            --border-color: #334155;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
-        .container { max-width: 900px; margin: auto; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--border-color); position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; }
+        .container { max-width: 850px; margin: auto; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); position: relative; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         
         /* Drawer Lateral */
         .drawer { 
             position: fixed; top: 0; right: -320px; width: 320px; height: 100%; 
-            background: var(--card-bg); border-left: 2px solid var(--primary-color); 
-            z-index: 1000; transition: 0.4s; padding: 20px; box-sizing: border-box; overflow-y: auto; color: var(--text-color);
+            background: var(--card-bg); border-left: 3px solid var(--primary-color); 
+            z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 20px; box-sizing: border-box; overflow-y: auto;
         }
         .drawer.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 999; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 999; }
 
         .menu-dots { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 28px; color: var(--primary-color); }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }
         @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
 
-        label { display: block; font-size: 13px; margin-top: 10px; opacity: 0.8; }
+        label { display: block; font-size: 13px; margin-bottom: 5px; font-weight: 500; }
         input, select { 
-            width: 100%; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); 
+            width: 100%; padding: 12px; margin-bottom: 12px; background: rgba(15, 23, 42, 0.5); 
             border: 1px solid var(--border-color); border-radius: 8px; color: inherit; box-sizing: border-box;
         }
         
-        button { padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
-        .btn-calc { background: var(--primary-color); width: 100%; font-size: 16px; margin: 15px 0; }
+        .btn-main { background: var(--primary-color); color: #000; width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin: 10px 0; }
+        .btn-unit { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 4px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; }
         
         .res-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .res-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border-top: 4px solid var(--primary-color); }
-        .res-line { padding: 10px 0; border-bottom: 1px solid var(--border-color); font-family: 'Courier New', monospace; font-size: 14px; }
-
-        /* Configurações de Cores */
-        .config-item { margin-bottom: 15px; }
-        .config-item label { display: inline-block; width: 120px; }
-        .color-picker { vertical-align: middle; cursor: pointer; }
+        .res-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border-top: 2px solid var(--primary-color); }
+        .res-line { padding: 8px 0; border-bottom: 1px solid var(--border-color); font-family: 'Courier New', monospace; font-size: 14px; }
         
-        .hist-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 11px; border-left: 3px solid var(--primary-color); }
+        .color-item { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .hist-item { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; border-left: 3px solid var(--primary-color); }
     </style>
 </head>
 <body>
@@ -61,37 +56,24 @@
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
 <div class="drawer" id="drawer">
-    <h3>Design e Cores</h3>
-    <div class="config-item">
-        <label>Cor de Fundo:</label>
-        <input type="color" id="cpBg" class="color-picker" oninput="updateColors()">
-    </div>
-    <div class="config-item">
-        <label>Cor do Card:</label>
-        <input type="color" id="cpCard" class="color-picker" oninput="updateColors()">
-    </div>
-    <div class="config-item">
-        <label>Cor dos Textos:</label>
-        <input type="color" id="cpText" class="color-picker" oninput="updateColors()">
-    </div>
-    <div class="config-item">
-        <label>Cor Principal:</label>
-        <input type="color" id="cpPrimary" class="color-picker" oninput="updateColors()">
-    </div>
+    <h3>Design Personalizado</h3>
+    <div class="color-item"><label>Fundo:</label> <input type="color" id="cBg" oninput="applyStyle()"></div>
+    <div class="color-item"><label>Card:</label> <input type="color" id="cCard" oninput="applyStyle()"></div>
+    <div class="color-item"><label>Letras:</label> <input type="color" id="cText" oninput="applyStyle()"></div>
+    <div class="color-item"><label>Destaque:</label> <input type="color" id="cPrim" oninput="applyStyle()"></div>
     
     <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
-    
     <h3>Histórico</h3>
-    <div id="listaHist">Nenhum ensaio salvo.</div>
-    <button onclick="limparHistorico()" style="background:#ff3d00; width:100%; margin-top:10px; padding:8px; font-size:12px">Limpar Histórico</button>
+    <div id="listaHist">Vazio.</div>
+    <button onclick="localStorage.removeItem('alpha_h'); carregarHist();" style="color:red; background:none; border:none; cursor:pointer; font-size:12px">Zerar Histórico</button>
 </div>
 
 <div class="container">
     <div class="card">
         <div class="menu-dots" onclick="toggleMenu()">&#8942;</div>
-        <header>
+        <header style="text-align:center; margin-bottom:20px;">
             <h1 style="margin:0; color:var(--primary-color)">EQUIPE ALPHA</h1>
-            <p style="font-size:13px; opacity:0.7">Controle de Resistência de Enrolamento</p>
+            <p style="font-size:12px; opacity:0.6">Cálculos de Resistência Ôhmica</p>
         </header>
 
         <label>Temperatura Medida (°C)</label>
@@ -99,183 +81,169 @@
 
         <div class="grid">
             <section>
-                <h3 style="color:var(--primary-color)">Entrada</h3>
+                <h3 style="color:var(--primary-color); margin-top:0">Entrada</h3>
                 <select id="unitIn">
-                    <option value="1e-12">pico-ohms (pΩ)</option>
-                    <option value="1e-6">micro-ohms (µΩ)</option>
-                    <option value="1e-3">milli-ohms (mΩ)</option>
-                    <option value="1" selected>Ohms (Ω)</option>
+                    <option value="1e-12">pΩ</option><option value="1e-6">µΩ</option>
+                    <option value="1e-3">mΩ</option><option value="1" selected>Ω</option>
                 </select>
-                <input id="e1" type="text" placeholder="Leitura H1-H3">
-                <input id="e2" type="text" placeholder="Leitura H1-H2">
-                <input id="e3" type="text" placeholder="Leitura H2-H3">
+                <input id="e1" type="number" placeholder="H1-H3">
+                <input id="e2" type="number" placeholder="H1-H2">
+                <input id="e3" type="number" placeholder="H2-H3">
             </section>
 
             <section>
-                <h3 style="color:var(--primary-color)">Saída</h3>
+                <h3 style="color:var(--primary-color); margin-top:0">Saída</h3>
                 <select id="unitOut">
-                    <option value="1e-6">micro-ohms (µΩ)</option>
-                    <option value="1e-3" selected>milli-ohms (mΩ)</option>
-                    <option value="1">Ohms (Ω)</option>
+                    <option value="1e-6">µΩ</option>
+                    <option value="1e-3" selected>mΩ</option>
+                    <option value="1">Ω</option>
                 </select>
-                <input id="s1" type="text" placeholder="Leitura X0-X1">
-                <input id="s2" type="text" placeholder="Leitura X0-X2">
-                <input id="s3" type="text" placeholder="Leitura X0-X3">
+                <input id="s1" type="number" placeholder="X0-X1">
+                <input id="s2" type="number" placeholder="X0-X2">
+                <input id="s3" type="number" placeholder="X0-X3">
             </section>
         </div>
 
-        <button class="btn-calc" onclick="calcular()">CALCULAR E SALVAR</button>
-        
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <button style="background:#444;" onclick="limparCampos()">LIMPAR TELA</button>
-            <button style="background:#673ab7;" onclick="gerarPDF()">GERAR PDF</button>
+        <button class="btn-main" onclick="executarCalculo()">CALCULAR E GRAVAR</button>
+        <div style="display:flex; gap:10px;">
+            <button onclick="window.location.reload()" style="flex:1; background:#444; border:none; color:white; padding:10px; border-radius:8px; cursor:pointer">Limpar</button>
+            <button onclick="gerarPDF()" style="flex:1; background:#6366f1; border:none; color:white; padding:10px; border-radius:8px; cursor:pointer">Gerar PDF</button>
         </div>
     </div>
 
     <div class="res-container" id="areaResultados" style="display:none;">
         <div class="res-box">
-            <h4>Entrada (Corrigida 75°C)</h4>
-            <div id="resEntrada"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="margin:0">Entrada</h4>
+                <button class="btn-unit" onclick="ciclarUnidade('In')">Mudar Unidade</button>
+            </div>
+            <div id="resE"></div>
         </div>
         <div class="res-box">
-            <h4>Saída (Corrigida 75°C)</h4>
-            <div id="resSaida"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="margin:0">Saída</h4>
+                <button class="btn-unit" onclick="ciclarUnidade('Out')">Mudar Unidade</button>
+            </div>
+            <div id="resS"></div>
         </div>
     </div>
 </div>
 
 <script>
-    let dadosSalvos = null;
+    let ensaioAtivo = null;
+    const unidades = [
+        {l:"pΩ", v:1e-12}, {l:"µΩ", v:1e-6}, {l:"mΩ", v:1e-3}, {l:"Ω", v:1}, {l:"kΩ", v:1e3}
+    ];
+    let uIdxIn = 3; // Inicia em Ω
+    let uIdxOut = 2; // Inicia em mΩ
 
     function toggleMenu() {
-        document.getElementById('drawer').classList.toggle('active');
-        document.getElementById('overlay').style.display = 
-            document.getElementById('drawer').classList.contains('active') ? 'block' : 'none';
+        const d = document.getElementById('drawer');
+        d.classList.toggle('active');
+        document.getElementById('overlay').style.display = d.classList.contains('active') ? 'block' : 'none';
     }
 
-    // Função para atualizar as cores dinamicamente
-    function updateColors() {
-        const root = document.documentElement;
-        root.style.setProperty('--bg-color', document.getElementById('cpBg').value);
-        root.style.setProperty('--card-bg', document.getElementById('cpCard').value);
-        root.style.setProperty('--text-color', document.getElementById('cpText').value);
-        root.style.setProperty('--primary-color', document.getElementById('cpPrimary').value);
+    function applyStyle() {
+        const r = document.documentElement;
+        r.style.setProperty('--bg-color', document.getElementById('cBg').value);
+        r.style.setProperty('--card-bg', document.getElementById('cCard').value);
+        r.style.setProperty('--text-color', document.getElementById('cText').value);
+        r.style.setProperty('--primary-color', document.getElementById('cPrim').value);
         
-        // Salvar preferências
-        const prefs = {
-            bg: document.getElementById('cpBg').value,
-            card: document.getElementById('cpCard').value,
-            text: document.getElementById('cpText').value,
-            primary: document.getElementById('cpPrimary').value
-        };
-        localStorage.setItem('alpha_theme_prefs', JSON.stringify(prefs));
+        localStorage.setItem('alpha_theme', JSON.stringify({
+            bg: document.getElementById('cBg').value,
+            card: document.getElementById('cCard').value,
+            text: document.getElementById('cText').value,
+            prim: document.getElementById('cPrim').value
+        }));
     }
 
-    function calcular() {
-        const tm = parseFloat(document.getElementById('tm').value.replace(',', '.'));
-        if(isNaN(tm)) { alert("Insira a temperatura!"); return; }
+    function executarCalculo() {
+        const tm = parseFloat(document.getElementById('tm').value);
+        if(isNaN(tm)) return alert("Informe a temperatura!");
 
-        const fTemp = (235 + 75) / (235 + tm);
-        const k = 1.5;
+        const Ftemp = (235 + 75) / (235 + tm);
+        const K = 1.5;
 
-        // Função de leitura corrigida
-        const obter = (id, unit) => {
-            let val = document.getElementById(id).value.replace(',', '.');
+        const calcularPonto = (id, multi) => {
+            const val = document.getElementById(id).value;
             if(val === "") return null;
-            return (parseFloat(val) * unit) * k * fTemp;
+            // Cálculo: Leitura * Unidade Selecionada * 1.5 * Fator Temperatura
+            return (parseFloat(val) * multi) * K * Ftemp;
         };
 
-        const uIn = parseFloat(document.getElementById('unitIn').value);
-        const uOut = parseFloat(document.getElementById('unitOut').value);
+        const mIn = parseFloat(document.getElementById('unitIn').value);
+        const mOut = parseFloat(document.getElementById('unitOut').value);
 
-        dadosSalvos = {
-            tm: tm,
+        ensaioAtivo = {
             data: new Date().toLocaleString(),
+            temp: tm,
             entrada: [
-                {lab: "H1-H3", val: obter('e1', uIn)},
-                {lab: "H1-H2", val: obter('e2', uIn)},
-                {lab: "H2-H3", val: obter('e3', uIn)}
+                {p:"H1-H3", v: calcularPonto('e1', mIn)},
+                {p:"H1-H2", v: calcularPonto('e2', mIn)},
+                {p:"H2-H3", v: calcularPonto('e3', mIn)}
             ],
             saida: [
-                {lab: "X0-X1", val: obter('s1', uOut)},
-                {lab: "X0-X2", val: obter('s2', uOut)},
-                {lab: "X0-X3", val: obter('s3', uOut)}
+                {p:"X0-X1", v: calcularPonto('s1', mOut)},
+                {p:"X0-X2", v: calcularPonto('s2', mOut)},
+                {p:"X0-X3", v: calcularPonto('s3', mOut)}
             ]
         };
 
-        exibirResultados();
-        salvarNoHistorico();
+        document.getElementById('areaResultados').style.display = 'grid';
+        atualizarExibicao();
+        salvarHist();
     }
 
-    function exibirResultados() {
-        const area = document.getElementById('areaResultados');
-        const dE = document.getElementById('resEntrada');
-        const dS = document.getElementById('resSaida');
+    function atualizarExibicao() {
+        if(!ensaioAtivo) return;
+        const fmt = (val, u) => val === null ? "---" : (val / u.v).toFixed(6) + " " + u.l;
         
-        area.style.display = 'grid';
-        
-        dE.innerHTML = dadosSalvos.entrada.map(i => 
-            `<div class="res-line"><b>${i.lab}:</b> ${i.val ? i.val.toFixed(6) + " Ω" : "---"}</div>`
-        ).join("");
-
-        dS.innerHTML = dadosSalvos.saida.map(i => 
-            `<div class="res-line"><b>${i.lab}:</b> ${i.val ? i.val.toFixed(6) + " Ω" : "---"}</div>`
-        ).join("");
+        document.getElementById('resE').innerHTML = ensaioAtivo.entrada.map(i => `<div class="res-line">${i.p}: ${fmt(i.v, unidades[uIdxIn])}</div>`).join("");
+        document.getElementById('resS').innerHTML = ensaioAtivo.saida.map(i => `<div class="res-line">${i.p}: ${fmt(i.v, unidades[uIdxOut])}</div>`).join("");
     }
 
-    function salvarNoHistorico() {
-        let h = JSON.parse(localStorage.getItem('alpha_h_pro') || "[]");
-        h.unshift(dadosSalvos);
-        localStorage.setItem('alpha_h_pro', JSON.stringify(h.slice(0,15)));
+    function ciclarUnidade(tipo) {
+        if(tipo === 'In') uIdxIn = (uIdxIn + 1) % unidades.length;
+        else uIdxOut = (uIdxOut + 1) % unidades.length;
+        atualizarExibicao();
+    }
+
+    function salvarHist() {
+        let h = JSON.parse(localStorage.getItem('alpha_h') || "[]");
+        h.unshift(ensaioAtivo);
+        localStorage.setItem('alpha_h', JSON.stringify(h.slice(0,10)));
         carregarHist();
     }
 
     function carregarHist() {
-        let h = JSON.parse(localStorage.getItem('alpha_h_pro') || "[]");
-        document.getElementById('listaHist').innerHTML = h.map(x => `
-            <div class="hist-item">
-                <b>${x.data}</b><br>Temp: ${x.tm}°C | Medido: ${(x.entrada[0].val || 0).toExponential(2)}Ω
-            </div>
-        `).join("");
+        let h = JSON.parse(localStorage.getItem('alpha_h') || "[]");
+        document.getElementById('listaHist').innerHTML = h.map(x => `<div class="hist-item"><b>${x.data}</b><br>Temp: ${x.temp}°C</div>`).join("");
     }
-
-    function limparCampos() {
-        ["e1","e2","e3","s1","s2","s3"].forEach(id => document.getElementById(id).value = "");
-        document.getElementById('areaResultados').style.display = 'none';
-    }
-
-    function limparHistorico() { localStorage.removeItem('alpha_h_pro'); carregarHist(); }
 
     function gerarPDF() {
-        if(!dadosSalvos) return alert("Calcule antes!");
+        if(!ensaioAtivo) return alert("Calcule antes!");
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text("EQUIPE ALPHA - RELATORIO TTR", 10, 15);
-        doc.text(`Data: ${dadosSalvos.data} | Temperatura: ${dadosSalvos.tm}C`, 10, 25);
-        let rows = [];
-        dadosSalvos.entrada.concat(dadosSalvos.saida).forEach(i => {
-            if(i.val) rows.push([i.lab, i.val.toFixed(6) + " Ohms", (i.val*1000).toFixed(4) + " mOhms"]);
+        doc.text("EQUIPE ALPHA - RELATORIO DE ENSAIO", 10, 15);
+        doc.text(`Data: ${ensaioAtivo.data} | Temperatura: ${ensaioAtivo.temp} C`, 10, 25);
+        let dados = [];
+        ensaioAtivo.entrada.concat(ensaioAtivo.saida).forEach(i => {
+            if(i.v) dados.push([i.p, i.v.toFixed(8) + " Ω"]);
         });
-        doc.autoTable({startY: 35, head: [['Ponto', 'Res. Ohms', 'Res. mOhms']], body: rows});
-        doc.save("ensaio_alpha.pdf");
+        doc.autoTable({startY: 35, head: [['Ponto', 'Valor Corrigido (Ω)']], body: dados});
+        doc.save("Relatorio_Alpha.pdf");
     }
 
-    // Carregar preferências ao iniciar
     window.onload = () => {
         carregarHist();
-        const saved = JSON.parse(localStorage.getItem('alpha_theme_prefs'));
-        if(saved) {
-            document.getElementById('cpBg').value = saved.bg;
-            document.getElementById('cpCard').value = saved.card;
-            document.getElementById('cpText').value = saved.text;
-            document.getElementById('cpPrimary').value = saved.primary;
-            updateColors();
-        } else {
-            // Valores padrão nos pickers
-            document.getElementById('cpBg').value = "#121212";
-            document.getElementById('cpCard').value = "#1e1e1e";
-            document.getElementById('cpText').value = "#ffffff";
-            document.getElementById('cpPrimary').value = "#3d5afe";
+        const t = JSON.parse(localStorage.getItem('alpha_theme'));
+        if(t) {
+            document.getElementById('cBg').value = t.bg;
+            document.getElementById('cCard').value = t.card;
+            document.getElementById('cText').value = t.text;
+            document.getElementById('cPrim').value = t.prim;
+            applyStyle();
         }
     };
 </script>
